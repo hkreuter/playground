@@ -1,0 +1,86 @@
+# development project.yaml for playground project
+---
+# --------------
+# php
+# --------------
+#
+sources::apache2php::ppasigningkey: "E5267A6C"
+php::version: "5.5"
+sources::apache2php::pparepository: "ppa:ondrej/php5/ppa"
+#
+# --------------
+# composer
+# --------------
+composer::run_install: "no"
+composer::run_update:  "no"
+#
+# --------------
+# symfony
+# --------------
+symfony::create_project: "no"
+#
+# --------------
+# apache2
+# --------------
+#
+apache2::sites_enabled_linkname: "000-default.conf"
+apache2::httpd_conf::content: " "
+#
+apache2::ports_conf::content: "# If you just change the port or add more ports here, you will likely also\n
+                               \t\t# have to change the VirtualHost statement in\n
+                               \t\t# /etc/apache2/sites-enabled/000-default\n
+                               \t\t# This is also true if you have upgraded from before 2.2.9-3 (i.e. from\n
+                               \t\t# Debian etch). See /usr/share/doc/apache2.2-common/NEWS.Debian.gz and\n
+                               \t\t# README.Debian.gz\n####
+
+                               \t\tServerName localhost\n
+                               \t\tListen 80\n
+
+                               \t\t<IfModule mod_ssl.c>\n
+                               \t\t    # If you add NameVirtualHost *:443 here, you will also have to change\n
+                               \t\t    # the VirtualHost statement in /etc/apache2/sites-available/default-ssl\n
+                               \t\t    # to <VirtualHost *:443>\n
+                               \t\t    # Server Name Indication for SSL named virtual hosts is currently not\n
+                               \t\t    # supported by MSIE on Windows XP.\n
+                               \t\t    Listen 443\n
+                               \t\t</IfModule>\n
+
+                               \t\t<IfModule mod_gnutls.c>\n
+                               \t\t    Listen 443\n
+                               \t\t</IfModule> "
+#
+apache2::vhosts:
+  app:
+    serveradmin: "deve@blogaboutwhatever.com"
+    servername:  "app"
+    serveralias: "theproject"
+    docroot:     "/var/www/theproject/web"
+    scriptalias: "/cgi-bin/ /usr/lib/cgi-bin/"
+    errorlog:    "${APACHE_LOG_DIR}/app-error.log"
+    loglevel:    "warn"
+    accesslog:   " ${APACHE_LOG_DIR}/app-access.log combined"
+    alias:       "/doc/ '/usr/share/doc/'"
+    dirindex:    "index.php index.html"
+    docroot_directory_options: "Options Indexes FollowSymLinks MultiViews \n
+                                \t\t AllowOverride All \n
+                                \t\t Order allow,deny \n
+                                \t\t allow from all\n"
+    directory_options: "   <Directory /> \n
+                       \t\t  Options FollowSymLinks \n
+                       \t\t  AllowOverride All \n
+                       \t\t </Directory> \n
+
+                       \t\t <Directory '/usr/lib/cgi-bin'> \n
+                       \t\t   AllowOverride None \n
+                       \t\t   Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch \n
+                       \t\t   Order allow,deny \n
+                       \t\t   Allow from all \n
+                       \t\t </Directory>\n
+
+                       \t\t <Directory '/usr/share/doc/'>\n
+                       \t\t   Options Indexes MultiViews FollowSymLinks \n
+                       \t\t   AllowOverride None \n
+                       \t\t   Order deny,allow \n
+                       \t\t   Deny from all \n
+                       \t\t   Allow from 127.0.0.0/255.0.0.0 ::1/128 \n
+                       \t\t </Directory>"

@@ -1,0 +1,121 @@
+#---------------------------------------------------------
+# Vagrantfile for HR development environment
+#---------------------------------------------------------
+
+VAGRANTFILE_API_VERSION = "2"
+VAGRANT_BASEBOX         = "HR_BASEBOX_2015"
+VBOX_NAME               = "HR_PLAYGROUND_2015"
+VBOX_HOSTNAME           = "thebox"
+VBOX_PROJECT_DIR        = "/var/www/theproject"
+VBOX_SYNC_FOLDER        = "../../playground"
+
+# guest ip adress
+VBOX_IP = "192.168.10.10"
+
+# box memory in MB
+VBOX_MEMORY = "1024"
+
+# box cpu capacity in percent
+VBOX_CPU_CAPACITY = "50"
+
+# number of cpus
+VBOX_CPU_CNT = "2"
+
+# minimum required vagrant version
+Vagrant.require_version ">= 1.6.5"
+
+#---------------------------------------------------------
+# start vm configuration
+#---------------------------------------------------------
+Vagrant.configure( VAGRANTFILE_API_VERSION ) do |config|
+
+  #---------------------------------------------------------
+  # box configuration
+  #---------------------------------------------------------
+  config.vm.box               = VAGRANT_BASEBOX
+
+  # if set to true, mind the vbox guest additions need to be reinstalled after update
+  config.vm.box_check_update  = false
+
+  config.vm.hostname          = VBOX_HOSTNAME
+  config.vm.post_up_message   = "Welcome, Deve L. Oper!"
+  config.vm.network :private_network, ip: VBOX_IP
+
+  #---------------------------------------------------------
+  # here goes the hostmanager stuff
+  #---------------------------------------------------------
+  config.hostmanager.enabled           = true
+  config.hostmanager.manage_host       = true
+  config.hostmanager.ignore_private_ip = false
+  config.hostmanager.include_offline   = true
+  config.hostmanager.aliases           = %w( app )
+
+  #---------------------------------------------------------
+  # virtual box guest additions, handled by vagrant-vbguest plugin
+  #---------------------------------------------------------
+  # we will try to autodetect this path.
+  # However, if we cannot or you have a special one you may pass it like:
+  # config.vbguest.iso_path = "#{ENV['HOME']}/Downloads/VBoxGuestAdditions.iso"
+  # or
+  # config.vbguest.iso_path = "http://company.server/VirtualBox/%{version}/VBoxGuestAdditions.iso"
+
+  # set auto_update to false, if you do NOT want to check the correct
+  # additions version when booting this machine
+  config.vbguest.auto_update = true
+
+  # do NOT download the iso file from a webserver
+  config.vbguest.no_remote = true
+
+  #---------------------------------------------------------
+  # customize your virtualbox vm
+  #---------------------------------------------------------
+  config.vm.provider "virtualbox" do |vm|
+      vm.customize ["modifyvm", :id, "--cpuexecutioncap", VBOX_CPU_CAPACITY]
+      vm.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
+      #vm.customize ["modifyvm", :id, "--natnet1", "192.168/16"]
+
+      vm.memory = VBOX_MEMORY
+      vm.gui    = false
+      vm.name   = VBOX_NAME
+      vm.cpus   = VBOX_CPU_CNT
+  end
+
+  #---------------------------------------------------------
+  # path to folder on the host that's synced to the guest
+  #---------------------------------------------------------
+  config.vm.synced_folder VBOX_SYNC_FOLDER, VBOX_PROJECT_DIR,
+                             owner: "vagrant", group: "www-data",
+                             mount_options: ["dmode=777,fmode=777"], type: "nfs"
+
+  #---------------------------------------------------------
+  # provisioning with puppet
+  #---------------------------------------------------------
+  config.vm.provision "puppet" do |puppet|
+      puppet.options           = "--verbose --debug --environment development"
+      #puppet.options           = "--verbose --debug --environment production"
+      puppet.working_directory = "/home/vagrant"
+      puppet.manifests_path    = "environments"
+      puppet.manifest_file     = ""
+      puppet.hiera_config_path = "config/hiera.yaml"
+      puppet.module_path       = "modules"
+
+      puppet.facter = {
+          "fact_composer_targetdir" => VBOX_PROJECT_DIR,
+          "fact_symfony_folder"     => VBOX_PROJECT_DIR
+      }
+
+  end
+
+end
+
+#---------------------------------------------------------
+# some notes
+#---------------------------------------------------------
+
+# in case you do not want to type the root pwd on every vagrant reload,
+# make sure your sudoer's file on mac contains the following lines
+#Cmnd_Alias VAGRANT_EXPORTS_ADD = /usr/bin/tee -a /etc/exports
+#Cmnd_Alias VAGRANT_NFSD = /sbin/nfsd restart
+#Cmnd_Alias VAGRANT_EXPORTS_REMOVE = /usr/bin/sed -E -e /*/ d -ibak /etc/exports
+#%admin ALL=(root) NOPASSWD: VAGRANT_EXPORTS_ADD, VAGRANT_NFSD, VAGRANT_EXPORTS_REMOVE
+

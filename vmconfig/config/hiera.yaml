@@ -1,0 +1,8 @@
+:backends: yaml
+:yaml:
+  :datadir: "%{settings::manifestdir}/%{::environment}"
+:logger: console
+:hierarchy:
+      - private
+      - project
+      - common
