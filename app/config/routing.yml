@@ -1,0 +1,7 @@
+#app:
+#    resource: @AppBundle/Controller/
+#    type:     annotation
+
+_start:
+    path:      /{sub}
+    defaults:  { _controller: AppBundle:Default:index }
