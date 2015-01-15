@@ -85,7 +85,7 @@ Vagrant.configure( VAGRANTFILE_API_VERSION ) do |config|
   #---------------------------------------------------------
   config.vm.synced_folder VBOX_SYNC_FOLDER, VBOX_PROJECT_DIR,
                              owner: "vagrant", group: "www-data",
-                             mount_options: ["dmode=777,fmode=777"], type: "nfs"
+                             mount_options: ["dmode=777,fmode=777"]
 
   #---------------------------------------------------------
   # provisioning with puppet
