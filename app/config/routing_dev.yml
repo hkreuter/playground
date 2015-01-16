@@ -16,12 +16,7 @@ _errors:
 
 _tests:
     path:      /tests
-    defaults:  { _controller: AppBundle:Default:tests }
+    defaults:  { _controller: HrBundle:Default:tests }
 
 _main:
     resource: routing.yml
-
-# AcmeDemoBundle routes (to be removed)
-_acme_demo:
-    resource: "@AcmeDemoBundle/Resources/config/routing.yml"
-

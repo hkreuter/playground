@@ -1,0 +1,4 @@
+./cache/dev
+./cache/prod
+./logs/*.log
+bootstrap.php.cache

@@ -2,6 +2,6 @@
 #    resource: @AppBundle/Controller/
 #    type:     annotation
 
-_start:
-    path:      /{sub}
-    defaults:  { _controller: AppBundle:Default:index }
+_default:
+    path:      /
+    defaults:  { _controller: HrBundle:Default:index }
