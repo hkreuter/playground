@@ -10,5 +10,6 @@ node thebox {
     include phpmyadmin
     include composer
     include symfony
+    include git
 
 }
