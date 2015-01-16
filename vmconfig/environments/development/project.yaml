@@ -11,7 +11,7 @@ sources::apache2php::pparepository: "ppa:ondrej/php5/ppa"
 # --------------
 # composer
 # --------------
-composer::run_install: "yes"
+composer::run_install: "no"
 composer::run_update:  "no"
 #
 # --------------
