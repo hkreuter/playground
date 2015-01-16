@@ -1,7 +1,10 @@
-./DS_Store
-./idea
+/.DS_Store/
+/.idea/
+vmconfig/.vagrant
+vmconfig/modules
 composer.lock
-./web/jquery
-./web/qunit
-./vendor
-./bin
+web/jquery
+web/qunit
+web/bundles
+vendor
+bin
