@@ -13,7 +13,7 @@ VBOX_SYNC_FOLDER        = "../../playground"
 VBOX_IP = "192.168.10.10"
 
 # box memory in MB
-VBOX_MEMORY = "1024"
+VBOX_MEMORY = "2048"
 
 # box cpu capacity in percent
 VBOX_CPU_CAPACITY = "50"
