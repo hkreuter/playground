@@ -5,3 +5,15 @@
 _default:
     path:      /
     defaults:  { _controller: HrBundle:Default:index }
+
+_games:
+    path:      /games/{page}
+    defaults:  { _controller: HrBundle:Games:index, page: index }
+
+# route whatever else comes to index page
+# http://symfony.com/doc/current/cookbook/routing/slash_in_parameter.html
+_allelse:
+    path:      /{page}
+    defaults:  { _controller: HrBundle:Default:index, page: index }
+    requirements:
+        page: .+

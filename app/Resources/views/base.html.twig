@@ -1,13 +1,20 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8" />
+        {% block meta %}<meta charset="UTF-8" />{% endblock %}
         <title>{% block title %}blogaboutwhatever.com's playground{% endblock %}</title>
         {% block stylesheets %}{% endblock %}
-        <link rel="icon" type="image/x-icon" href="{{ asset('favicon_php.ico') }}" />
+        {% block link %}<link rel="icon" type="image/x-icon" href="{{ asset('favicon_php.ico') }}" />{% endblock %}
+        <link rel="stylesheet" href="http://app/jquery/js/mobile/jquery.mobile-1.4.5.min.css" />
     </head>
     <body>
         {% block body %}{% endblock %}
+
+        <script src="http://app/jquery/js/generic/jquery-2.1.3.js"></script>
+        <script src="http://app/jquery/js/mobile/jquery.mobile-1.4.5.min.js"></script>
+
         {% block javascripts %}{% endblock %}
     </body>
 </html>
+
+

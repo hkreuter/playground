@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block meta %}
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta http-equiv="content-language" content="en" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="http://app/src/css/ipod.css">
+{% endblock %}
+
+{% block body %}
+
+    <div id="index_main_top" class="mainindex_top" >
+        <table>
+            <colgroup>
+                <col width="30%" />
+                <col width="20%" />
+                <col width="50%" />
+            </colgroup>
+            <tr>
+                <td><img align="center" src="http://app/favicon_php.ico"/></td>
+                <td>&nbsp;</td>
+                <td><i>blogaboutwhatever.com's playground</i></td>
+            </tr>
+        </table>
+    </div>
+
+
+    <div class="mainindex" >
+        <table align="center">
+            <colgroup>
+                <col width="30%" />
+                <col width="5%" />
+                <col width="30%" />
+                <col width="5%" />
+                <col width="30%" />
+            </colgroup>
+            <tr>
+                <td><a href="app/games/simulation" alt="Game of Life" title="Game of Life" ><img src="http://app/src/images/indexpics/game_of_life.jpg"/></a></td>
+                <td>&nbsp;</td>
+                <td><a href="app/games/solitaire" alt="Solitaire" title="Solitaire" ><img src="http://app/src/images/indexpics/solitaire.jpg"/></a></td>
+                <td>&nbsp;</td>
+                <td><a href="app/games/tiles" alt="Tiles" title="Tiles"><img src="http://app/src/images/indexpics/tiles.jpg"/></a></td>
+            </tr>
+            <tr>
+                <td colspan="5">&nbsp;</td>
+            </tr>
+            <tr>
+                <td><a href="app/games/memory" alt="Memory" title="Memory is not yet available" ><img src="http://app/src/images/indexpics/memory.jpg"/></a></td>
+                <td>&nbsp;</td>
+                <td><a href="app/games/gem" alt="Gems" title="Gems is not yet available"><img src="http://app/src/images/indexpics/gems.jpg"/></a></td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr>
+                <td colspan="5">&nbsp;</td>
+            </tr>
+
+        </table>
+    </div>
+
+{% endblock %}
+
+{% block javascripts %}
+    <script src="http://app/qunit/js/qunit-1.16.0.js"></script>
+    <script src="http://app/src/js/tests/tests.js"></script>
+{% endblock %}
