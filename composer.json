@@ -119,9 +119,9 @@
     "installer-paths": {
       "./web/qunit/js": ["qunit/qunit"],
       "./web/qunit/css": ["qunit/css"],
-      "./web/jquery/js/generic": ["jquery/jquery"],
-      "./web/jquery/js/chosen": ["jquery/chosen"],
-      "./web/jquery/js/mobile": ["jquery/mobile"]
+      "./web/jquery/generic": ["jquery/jquery"],
+      "./web/jquery/chosen": ["jquery/chosen"],
+      "./web/jquery/mobile": ["jquery/mobile"]
     },
     "symfony-app-dir": "app",
     "symfony-web-dir": "web",
