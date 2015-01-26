@@ -67,6 +67,10 @@ assetic:
             inputs:
                - '@HrBundle/Resources/public/thirdparty/qunit/css/qunit-1.16.0.css'
             output: css/qunit.css
+        favicon:
+            inputs:
+               - '@HrBundle/Resources/public/hr/images/favicon_php.ico'
+            output: favicon.ico
 
 # Doctrine Configuration
 doctrine:

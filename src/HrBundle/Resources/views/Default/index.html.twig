@@ -14,12 +14,7 @@
 {% block stylesheets %}
     <link rel="stylesheet" href="{{ asset('css/jquerymobile.css') }}" media="screen"/>
     <link rel="stylesheet" href="{{ asset('css/hrbundle.css') }}" media="screen"/>
-    <!--
-        <link rel="stylesheet" href="http://app/jquery/mobile/jquery.mobile-1.4.5.min.css">
-        <link rel="stylesheet" href="http://app/src/css/hrbundle.css">
-    -->
 {% endblock %}
-
 
 {% block body_header %}
     <div id="index_main_top" class="mainindex_top" >
@@ -30,7 +25,7 @@
                 <col width="50%" />
             </colgroup>
             <tr>
-                <td><img align="center" src="http://app/favicon_php.ico"/></td>
+                <td><img align="center" src={{ asset('favicon.ico') }} /></td>
                 <td>&nbsp;</td>
                 <td><i>blogaboutwhatever.com's playground</i></td>
             </tr>
@@ -42,8 +37,4 @@
     {% javascripts '@jquery_and_ui' %}
         <script src="{{ asset_url }}"></script>
     {% endjavascripts %}
-    <!--
-        <script src="http://app/jquery/js/generic/jquery-2.1.3.js"></script>
-        <script src="http://app/jquery/js/mobile/jquery.mobile-1.4.5.min.js"></script>
-    -->
 {% endblock %}

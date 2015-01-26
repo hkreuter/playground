@@ -9,7 +9,7 @@
             <title>{% block title %}blogaboutwhatever.com's playground{% endblock %}</title>
 
             {% block stylesheets %}{% endblock %}
-            {% block link %}<link rel="icon" type="image/x-icon" href="{{ asset('favicon_php.ico') }}" />{% endblock %}
+            {% block link %}<link rel="icon" type="image/x-icon" href={{ asset('favicon.ico') }} />{% endblock %}
         {% endblock %}
     </head>
     <body>
