@@ -24,7 +24,7 @@ class GamesController extends Controller
             $page = 'index';
         }
 
-        $template = "games/$page.html.twig";
+        $template = "HrBundle:Games:$page.html.twig";
 
         return $this->render($template);
     }

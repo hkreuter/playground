@@ -18,7 +18,7 @@ class DefaultController extends Controller
      */
     public function indexAction()
     {
-        return $this->render('default/index.html.twig');
+        return $this->render('HrBundle:Default:index.html.twig');
     }
 
     /**
@@ -26,6 +26,6 @@ class DefaultController extends Controller
      */
     public function testsAction()
     {
-        return $this->render('default/tests.html.twig');
+        return $this->render('HrBundle:Default:tests.html.twig');
     }
 }

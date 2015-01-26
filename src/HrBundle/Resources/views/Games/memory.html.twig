@@ -1,0 +1,175 @@
+memory
+
+
+{% block body_main %}
+
+    <div data-role="page" id="page1">
+        <div data-role="content">
+            <div data-role="controlgroup">
+                <a href="#" data-role="button">Yes</a>
+                <a href="#" data-role="button">No</a>
+                <a href="#" data-role="button">Maybe</a>
+            </div>
+            <div data-role="controlgroup" data-type="horizontal">
+                <a href="#" data-role="button">Yes</a>
+                <a href="#" data-role="button">No</a>
+                <a href="#" data-role="button">Maybe</a>
+            </div>
+        </div>
+    </div>
+
+
+    <div data-role="page" id="page1">
+        <div data-role="header">
+            <h1>Grid Layout Example</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div class="ui-grid-a">
+                <div class="ui-block-a"><strong>I'm Block A</strong> and text inside will wrap.</div>
+                <div class="ui-block-b"><strong>I'm Block B</strong> and text inside will wrap.</div>
+            </div>
+        </div>
+    </div>
+
+
+    <div data-role="page" id="page2">
+        <div role="main" class="ui-content">
+            <div class="ui-grid-c" data-mini="true">
+                <div class="ui-block-a"><strong>I'm Block A</strong> and text inside will wrap.</div>
+                <div class="ui-block-b"><strong>I'm Block B</strong> and text inside will wrap.</div>
+                <div class="ui-block-c"><strong>I'm Block C</strong> and text inside will wrap.</div>
+                <div class="ui-block-d"><strong>I'm Block D</strong> and text inside will wrap.</div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="ui-grid-b">
+        <div class="ui-block-a">Block A</div>
+        <div class="ui-block-b">Block B</div>
+        <div class="ui-block-c">Block C</div>
+    </div>
+
+    <div class="ui-grid-a">
+        <div class="ui-block-a"><button type="button" data-theme="a">Previous</button></div>
+        <div class="ui-block-b"><button type="button" data-theme="a">Next</button></div>
+    </div>
+    <div class="ui-grid-solo">
+        <div class="ui-block-a"><button type="button" data-theme="b">More</button></div>
+    </div>
+
+    <fieldset class="ui-grid-a">
+        <div class="ui-block-a"><button type="submit" data-theme="a">Cancel</button></div>
+        <div class="ui-block-b"><button type="submit" data-theme="b">Submit</button></div>
+    </fieldset>
+    -->
+
+    <div role="main" class="ui-content" data-type="horizontal">
+        <fieldset class="ui-grid-d">
+            <div class="ui-block-a"><button type="button" data-theme="a" class="start">Start</button></div>
+            <div class="ui-block-b"><button type="button" data-theme="b" class="reset">Init</button></div>
+            <div class="ui-block-c"><button type="button" data-theme="c" class="stop" >Stop</button></div>
+            <div class="ui-block-d"><button type="button" data-theme="d" class="clean">Del</button></div>
+            <div class="ui-block-e"><button type="button" data-theme="e" class="mode">Mod</button></div>
+        </fieldset>
+    </div>
+
+
+    <div role="main_asdf" class="ui-content" data-type="horizontal">
+        <fieldset class="ui-grid-d">
+            <div class="ui-block-a"><button type="button" data-theme="a" class="start">asdf</button></div>
+            <div class="ui-block-b"><button type="button" data-theme="b" class="reset">asdf</button></div>
+            <div class="ui-block-c"><button type="button" data-theme="c" class="stop" >asdf</button></div>
+            <div class="ui-block-d"><button type="button" data-theme="d" class="clean">asdf</button></div>
+            <div class="ui-block-e"><button type="button" data-theme="e" class="mode">asdf</button></div>
+        </fieldset>
+    </div>
+
+
+    <div role="test" class="ui-content" data-type="horizontal">
+        <fieldset class="ui-grid-d">
+            <div class="ui-block-a">asdf</div>
+            <div class="ui-block-b">asdf</div>
+            <div class="ui-block-c">asdf</div>
+            <div class="ui-block-d">asdf</div>
+            <div class="ui-block-e">asdf</div>
+        </fieldset>
+    </div>
+
+
+    <div class="ui-btn ui-input-btn ui-shadow">
+        The Button
+        <input type="button" data-corners="false" data-enhanced="true" value="The Button"></input>
+    </div>
+
+    <div id="buttons" class="ui-content" data-role="controls" data-type="horizontal" data-mini="true">
+        <input type="button" data-mini="true" data-inline="true" class="start" name="start" value="Start" onclick="simulationStart();" />
+        <input type="button" data-mini="true" data-inline="true" class="reset" name="reset" value="Init" onclick="simulationReset();" />
+        <input type="button" data-mini="true" data-inline="true" class="stop" name="stop"  value="Stop"  onclick="simulationStop();" />
+        <input type="button" data-mini="true" data-inline="true" class="clean" name="stop"  value="Del"  onclick="simulationClean(true);" />
+        <input type="button" data-mini="true" data-inline="true" class="mode" name="mode"  value="Mod"  onclick="changeMode();" />
+    </div>
+
+    <!--
+
+           <div id="simulation" class="body simulation" >
+
+               <div id="container" ontouchstart="simulationSetCell(event);"></div>
+
+               <div id="buttons" class="simbutton" data-role="controls" data-type="horizontal" data-mini="true">
+                   <input type="button" data-mini="true" data-inline="true" class="start" name="start" value="Start" onclick="simulationStart();" />
+                   <input type="button" data-mini="true" data-inline="true" class="reset" name="reset" value="Init" onclick="simulationReset();" />
+                   <input type="button" data-mini="true" data-inline="true" class="stop" name="stop"  value="Stop"  onclick="simulationStop();" />
+                   <input type="button" data-mini="true" data-inline="true" class="clean" name="stop"  value="Del"  onclick="simulationClean(true);" />
+                   <input type="button" data-mini="true" data-inline="true" class="mode" name="mode"  value="Mod"  onclick="changeMode();" />
+               </div>
+
+              <!--
+               <div id="buttons" class="simbutton">
+                   <input type="button" class="start" name="start" value="Start" onclick="simulationStart();" />
+                   <input type="button" class="reset" name="reset" value="Init" onclick="simulationReset();" />
+                   <input type="button" class="stop" name="stop"  value="Stop"  onclick="simulationStop();" />
+                   <input type="button" class="clean" name="stop"  value="Del"  onclick="simulationClean(true);" />
+                   <input type="button" class="mode" name="mode"  value="Mod"  onclick="changeMode();" />
+               </div>
+
+
+               <div id="siminfo" class="siminfo">
+                   <table width="100%">
+                       <colgroup>
+                           <col width="35%">
+                           <col width="30%">
+                           <col width="35%">
+                       </colgroup>
+                       <tr>
+                           <td>Game </td>
+                           <td><div id="status">more Infos</div></td>
+                           <td><div id="mode">more Infos</div></td>
+                       </tr>
+                       <tr>
+                           <td>Living Cells</td>
+                           <td>
+                               <div id="livecount"></div>
+                           </td>
+                           <td><div id="debug"></div></td>
+                       </tr>
+                       <tr>
+                           <td>Iterations done</td>
+                           <td><div id="iterationcount"></div></td>
+                           <td></td>
+                       </tr>
+                   </table>
+
+                   <div id="subinfo" class="siminfo moreinfo">- Conways Game of Life -</div>
+               </div>
+
+           </div>
+       -->
+    <!--
+    <body onload="checkClient();initInfo('siminfo');init();" onorientationchange="initInfo('siminfo');init();">
+    -->
+
+    <!--
+     <script type="text/javascript" src="http://app/src/js/iSimulate.js"></script>
+   -->
+{% endblock %}
