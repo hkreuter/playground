@@ -117,11 +117,11 @@
   },
   "extra": {
     "installer-paths": {
-      "./web/qunit/js": ["qunit/qunit"],
-      "./web/qunit/css": ["qunit/css"],
-      "./web/jquery/generic": ["jquery/jquery"],
-      "./web/jquery/chosen": ["jquery/chosen"],
-      "./web/jquery/mobile": ["jquery/mobile"]
+      "./src/HrBundle/Resources/public/thirdparty/qunit/js": ["qunit/qunit"],
+      "./src/HrBundle/Resources/public/thirdparty/qunit/css": ["qunit/css"],
+      "./src/HrBundle/Resources/public/thirdparty/jquery/generic": ["jquery/jquery"],
+      "./src/HrBundle/Resources/public/thirdparty/jquery/chosen": ["jquery/chosen"],
+      "./src/HrBundle/Resources/public/thirdparty/jquery/mobile": ["jquery/mobile"]
     },
     "symfony-app-dir": "app",
     "symfony-web-dir": "web",

@@ -8,3 +8,4 @@ web/qunit
 web/bundles
 vendor
 bin
+src/HrBundle/Resources/public/thirdparty
