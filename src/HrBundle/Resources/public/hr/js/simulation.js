@@ -6,19 +6,23 @@
  */
 
 
-function gameoflife()
-{
+function GameOfLife( infoHandler ) {
+
+    this.mode = 'normal';
+    var info = infoHandler;
+
 
     // set the border mode, default is normal (dead cells outside)
-    function changeMode()
-    {
-        var mode = gol_parameters('sMode');
-        if ( 'torus' == mode) {
-            mode = 'normal';
+    this.switchMode = function() {
+        if ( 'torus' == this.mode) {
+            this.mode = 'normal';
         } else {
-            mode = 'torus'
+            this.mode = 'torus'
         }
-        //showInfo( currentState );
+    };
+
+    this.getMode = function() {
+        return this.mode;
     }
 
     //following code is executed when function is called
@@ -27,51 +31,39 @@ function gameoflife()
 }
 
 //status information
-function InfoHandler( infodivname )
-{
+function InfoHandler( infodivname ) {
     this.infodiv = document.getElementById( infodivname );
     if ( ! this.infodiv instanceof HTMLDivElement ) {
         throw "Cannot access infodiv!"
     }
 
     //show status information
-    this.showInfo = function showInfo( message )
-    {
-        //alert( this.infodiv.id)
+    this.showInfo = function( message ) {
         this.infodiv.innerHTML = message;
-    }
+    };
 
-    this.getInfoDivId = function getInfoDivId()
-    {
+    this.getInfoDivId = function() {
         return this.infodiv.id;
-    }
+    };
 }
-
-/*
-//show status information
-InfoHandler.prototype.showInfo = function showInfo( message )
-{
-    this.infodiv.innerHTML = message;
-}
-*/
 
 
 $( window ).load(
+
     function() {
-        try {
-            var game = gameoflife();
 
-            var info = new InfoHandler( 'runtimeinfo' );
-            info.showInfo( 'asdfasdf' );
+        if ( 'Tests for Conways Game of Life' != document.title ) {
+            try {
+                var info = new InfoHandler( 'runtimeinfo' );
+                var game = new GameOfLife( info );
 
-            var moreinfo = new InfoHandler( 'subinfo' );
-            info.showInfo( 'xxxxxx' );
 
-            //game.createPad(100, 200);
-            //game.changeMode();
-        }
-        catch(err) {
-            document.getElementById("runtimeinfo").innerHTML = err.message;
+                //game.createPad(100, 200);
+                //game.changeMode();
+            }
+            catch(err) {
+                document.getElementById("runtimeinfo").innerHTML = err.message;
+            }
         }
     }
 )

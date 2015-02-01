@@ -70,7 +70,6 @@ assetic:
         bundle_hr_js_tests:
             inputs:
                 - '@HrBundle/Resources/public/hr/js/tests/simulation.js'
-               # - '@HrBundle/Resources/public/hr/js/simulation.js'
             output: js/tests/hrbundle_simulation.js
         qunit_css:
             inputs:

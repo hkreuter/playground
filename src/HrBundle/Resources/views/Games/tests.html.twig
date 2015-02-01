@@ -1,7 +1,7 @@
 {% extends 'HrBundle:Default:base.html.twig' %}
 
 {% block title %}
-    Test for Conways Game of Life
+    Tests for Conways Game of Life
 {% endblock %}
 
 {% block stylesheets %}
@@ -15,12 +15,12 @@
     <div id="for-qunit-tests-A"></div>
     <div id="for-qunit-tests-B"></div>
 
-    {% block javascripts %}
-        {% javascripts
-            '@jquery_and_ui'
-            '@qunit' %}
-            <script src="{{ asset_url }}"></script>
-        {% endjavascripts %}
-    {% endblock %}
+    {% javascripts
+        '@jquery_and_ui'
+        '@qunit'
+        '@bundle_hr_js_simulation'
+        '@bundle_hr_js_tests' %}
+        <script src="{{ asset_url }}"></script>
+    {% endjavascripts %}
 
 {% endblock %}
