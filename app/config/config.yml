@@ -63,6 +63,15 @@ assetic:
             inputs:
                 - '@HrBundle/Resources/public/hr/css/hrbundle.css'
             output: css/hrbundle.css
+        bundle_hr_js_simulation:
+            inputs:
+                - '@HrBundle/Resources/public/hr/js/simulation.js'
+            output: js/hrbundle_simulation.js
+        bundle_hr_js_tests:
+            inputs:
+                - '@HrBundle/Resources/public/hr/js/tests/simulation.js'
+               # - '@HrBundle/Resources/public/hr/js/simulation.js'
+            output: js/tests/hrbundle_simulation.js
         qunit_css:
             inputs:
                - '@HrBundle/Resources/public/thirdparty/qunit/css/qunit-1.16.0.css'

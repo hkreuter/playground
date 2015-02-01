@@ -1,0 +1,26 @@
+{% extends 'HrBundle:Default:base.html.twig' %}
+
+{% block title %}
+    Test for Conways Game of Life
+{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/jquerymobile.css') }}" media="screen"/>
+    <link rel="stylesheet" href="{{ asset('css/qunit.css') }}" media="screen"/>
+{% endblock %}
+
+{% block body %}
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+    <div id="for-qunit-tests-A"></div>
+    <div id="for-qunit-tests-B"></div>
+
+    {% block javascripts %}
+        {% javascripts
+            '@jquery_and_ui'
+            '@qunit' %}
+            <script src="{{ asset_url }}"></script>
+        {% endjavascripts %}
+    {% endblock %}
+
+{% endblock %}

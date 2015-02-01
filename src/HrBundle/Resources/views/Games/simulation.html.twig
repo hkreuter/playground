@@ -6,6 +6,10 @@
 
 {% block body_main %}
 
+    <div data-role="canvas" id="gol_canvas">
+       BLAFOO
+    </div>
+
     <div data-role="controls" id="buttons">
         <div data-role="content">
             <div data-role="controlgroup" data-type="horizontal" data-corners="true" data-mini="true" data-shadow="true">
@@ -20,18 +24,21 @@
         </div>
     </div>
 
+    <div id="runtimeinfo" class="siminfo"></div>
+
+    <div id="errorinfo" class="siminfo"></div>
+
     <div id="subinfo" class="siminfo moreinfo">- Conways Game of Life -</div>
 
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
-    <!--
-    <script type="text/javascript">
-        $(function() {
-            alert('WAHOO')
-        });
-    </script>
-    -->
+
+    {% javascripts '@jquery_and_ui'
+                   '@bundle_hr_js_simulation' %}
+        <script src="{{ asset_url }}"></script>
+    {% endjavascripts %}
+
 {% endblock %}
 

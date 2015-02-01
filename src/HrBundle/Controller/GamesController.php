@@ -13,7 +13,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class GamesController extends Controller
 {
-    private $_games = array( 'simulation', 'solitaire', 'gems', 'memory', 'tiles' );
+    private $_games = array( 'simulation', 'solitaire', 'gems', 'memory', 'tiles', 'tests' );
 
     /**
      * @Route("/app/games/{page}", name="start"), defaults={"page" = 'index'})
