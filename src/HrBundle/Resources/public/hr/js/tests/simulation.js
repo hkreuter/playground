@@ -21,37 +21,83 @@ QUnit.test( "InfoHandler set message",
         var infoA = new InfoHandler( testdivA );
         infoA.showInfo( messageA );
         assert.ok( infoA.getInfoDivId( testdivA ) == testdivA, "Passed!" );
-        assert.equal( messageA, document.getElementById( testdivA ).innerHTML );
+        assert.equal( document.getElementById( testdivA ).innerHTML, messageA );
 
         var messageB = "BBB";
         var infoB = new InfoHandler( testdivB );
         infoB.showInfo( messageB );
         assert.ok( infoB.getInfoDivId( testdivB ) == testdivB, "Passed!" );
-        assert.equal( messageB, document.getElementById( testdivB ).innerHTML );
+        assert.equal( document.getElementById( testdivB ).innerHTML, messageB );
+    }
+);
+
+//GolConfig constructor test
+QUnit.test( "GolConfig construct fails due to wrong parameters",
+    function( assert ) {
+
+        assert.throws(
+            function() {
+                new GolConfig( 'asdf', 100, testdivA );
+            },
+            'Parameter width is not numeric!'
+        );
+        assert.throws(
+            function() {
+                new GolConfig( 100, 'bla', testdivA );
+            },
+            'Parameter height is not numeric!'
+        );
+    }
+);
+
+//test GameOfLife constructor test
+QUnit.test( "GameOfLife construct ok",
+    function( assert ) {
+
+        var info   = new InfoHandler( testdivA );
+        var config = new GolConfig( 100, 200, testdivB );
+        var game   = new GameOfLife( config, info );
+
+        assert.equal( game.getName(), 'GameOfLife' );
+    }
+);
+
+//test GameOfLife constructor test
+QUnit.test( "GameOfLife construct fails due to wrong parameters",
+    function( assert ) {
+
+        var info   = new InfoHandler( testdivA );
+        var config = new GolConfig( 100, 200, testdivB );
+
+        assert.throws(
+            function() {
+                new GameOfLife( info, config );
+            },
+            'Parameter config is not of type GolConfig!'
+        );
     }
 );
 
 //test GameOfLife mode switch
-QUnit.test( "GameOfLife mode switch",
+QUnit.test( "GolConfig mode switch",
     function( assert ) {
 
-        var info = new InfoHandler( testdivA );
-        var game = new GameOfLife( info );
+        var config = new GolConfig( 100, 200, testdivB  );
 
         //verify that the default mode is 'normal'
-        assert.equal( 'normal', game.getMode() );
+        assert.equal( config.getMode(), 'normal' );
 
         //mode switch
-        game.switchMode();
+        config.switchMode();
 
         //verify that the mode switch worked
-        assert.equal( 'torus', game.getMode() );
+        assert.equal( config.getMode(), 'torus' );
 
         //mode switch again
-        game.switchMode();
+        config.switchMode();
 
         //verify that the mode switch worked
-        assert.equal( 'normal', game.getMode() );
+        assert.equal( config.getMode(), 'normal' );
     }
 );
 
@@ -59,29 +105,58 @@ QUnit.test( "GameOfLife mode switch",
 QUnit.test( "GameOfLife configuration",
     function( assert ) {
 
-        var testee = new GolConfig();
+        var testee = new GolConfig( 100, 200, testdivB );
         var regExp = '^#(?:[0-9a-fA-F]{3}){1,2}$';
 
         var col     = testee.getDeadColor();
-        var matched = col.match(regExp);
-        assert.ok( (null != matched), 'Passed!' );
+        assert.ok( (null != col.match(regExp)), 'Passed!' );
 
         var col     = testee.getAliveColor();
-        var matched = col.match(regExp);
-        assert.ok( (null != matched), 'Passed!' );
+        assert.ok( (null != col.match(regExp)), 'Passed!' );
 
         var col     = testee.getNeutralColor();
-        var matched = col.match(regExp);
-        assert.ok( (null != matched), 'Passed!' );
+        assert.ok( (null != col.match(regExp)), 'Passed!' );
 
         assert.ok( (0 < testee.getLeftOffset()), 'Passed!' );
         assert.ok( (0 < testee.getTopOffset()), 'Passed!' );
 
-        var res = testee.getColumnCnt( 295);
-        assert.equal( 22, res );
+        assert.equal( testee.getColumnCnt( 295), 22 );
+        assert.equal( testee.getRowCnt( 300 ), 23 );
 
-        var res = testee.getRowCnt( 295 );
-        assert.equal( 22, res );
+        assert.equal( testee.getHorizontalWidth(), 456 );
+        assert.equal( testee.getHorizontalHeight(), 196 );
+        assert.equal( testee.getVerticalWidth(), 300 );
+        assert.equal( testee.getVerticalHeight(), 274 );
 
+        assert.equal( testee.getName(), 'GolConfig' );
+
+    }
+);
+
+QUnit.test( "GameOfLife canvas creation fails",
+    function( assert ) {
+
+        var info   = new InfoHandler( testdivA );
+        var config = new GolConfig( 100, 200, '' );
+        var game   = new GameOfLife( config, info );
+
+        assert.throws(
+            function() {
+                var test = game.getCanvas();
+            },
+            'Parameter config is not of type GolConfig!'
+        );
+    }
+);
+
+QUnit.test( "GameOfLife canvas creation ok",
+    function( assert ) {
+
+        var info   = new InfoHandler( testdivA );
+        var config = new GolConfig( 100, 200, testdivB );
+        var game   = new GameOfLife( config, info );
+
+        var canvas = game.getCanvas();
+        assert.equal( canvas.id, config.getCanvasId() );
     }
 );

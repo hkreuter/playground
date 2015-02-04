@@ -6,19 +6,50 @@
  */
 
 // configuration
-function GolConfig()
+function GolConfig( width, height, containerid )
 {
+    if ( !$.isNumeric(width) ) {
+        throw new Error('width is not a number!');
+    }
+    if ( !$.isNumeric(height) ) {
+        throw new Error('height is not a number');
+    }
+
+    this.mode         = 'normal';
     this.deadColor    = '#C6C6C6';
     this.aliveColor   = '#446ED9';
     this.neutralColor = '#132042'; //'#000000';
     this.gridBorder   = 1;
-    this.gridSize     = 13;
+    this.gridSize      = 13;
+    this.width         = Math.ceil(width);
+    this.height        = Math.ceil(height);
+    this.canvasid    = 'canvas';
+    this.containerid = 'container';
+
+    if ( 0 < containerid.length ) {
+        this.containerid = containerid;
+    }
 
     // we have 10px padding to the left and 2px to the top
     this.leftOffset = 10;
     this.topOffset  = 2;
 
     // getters
+    this.getName = function() {
+        return 'GolConfig';
+    };
+    this.getCanvasId = function() {
+        return this.canvasid;
+    };
+    this.getContainerId = function() {
+        return this.containerid;
+    };
+    this.getWidth = function() {
+        return this.width;
+    };
+    this.getHeight = function() {
+        return this.height;
+    };
     this.getDeadColor = function() {
         return this.deadColor;
     };
@@ -34,30 +65,39 @@ function GolConfig()
     this.getTopOffset = function() {
         return this.topOffset;
     };
+    this.getHorizontalWidth = function() {
+        return 35 * this.gridSize + 1;
+    };
+    this.getHorizontalHeight = function() {
+        return 15 * this.gridSize + 1;
+    };
+    this.getVerticalWidth = function() {
+        return 23 * this.gridSize + 1;
+    };
+    this.getVerticalHeight = function() {
+        var height = 21 * this.gridSize + 1;
+        if ( window.navigator.standalone ) {
+            height = 28 * this.gridSize + 1;
+        }
+        return height;
+    };
 
     //calculate number of columns canvas will have
-    this.getColumnCnt = function(canvasWidth) {
-        var columns = Math.floor( (canvasWidth - this.gridBorder)/this.gridSize );
+    this.getColumnCnt = function (canvasWidth) {
+        var columns = Math.floor((canvasWidth - this.gridBorder) / this.gridSize);
         return columns;
-    }
+    };
 
     //calculate number of rows canvas will have
-    this.getRowCnt = function(canvasHeight) {
+    this.getRowCnt = function (canvasHeight) {
         //var rows = Math.floor( (canvasHeight - this.gridBorder)/this.gridSize );
-        var rows = Math.floor( (canvasHeight - this.gridBorder)/this.gridSize );
+        var rows = Math.floor((canvasHeight - this.gridBorder) / this.gridSize);
         return rows;
-    }
-}
-
-
-function GameOfLife( infoHandler ) {
-
-    this.mode = 'normal';
-    var info = infoHandler;
+    };
 
     // set the border mode, default is normal (dead cells outside)
-    this.switchMode = function() {
-        if ( 'torus' == this.mode) {
+    this.switchMode = function () {
+        if ('torus' == this.mode) {
             this.mode = 'normal';
         } else {
             this.mode = 'torus'
@@ -66,7 +106,106 @@ function GameOfLife( infoHandler ) {
 
     this.getMode = function() {
         return this.mode;
+    };
+
+}
+
+
+function GameOfLife( config, infoHandler ) {
+
+    this.canvas          = null;
+    this.simulation      = null;
+    this.lastOrientation = null;
+    this.timer           = 0;
+
+    this.getName = function() {
+        return 'GameOfLife';
+    };
+
+    if ('GolConfig' != config.getName()) {
+        throw new Error('Parameter config is not of type GolConfig!');
     }
+    if ('InfoHandler' != infoHandler.getName()) {
+        throw new Error('Parameter infoHandler is not of type infoHandler!');
+    }
+
+    //append canvas element
+    this.getCanvas = function() {
+
+        if ( null == this.canvas ) {
+            if ( null == document.getElementById(config.getContainerId()) ) {
+                throw new Error( "Need element with id '" + config.getContainerId() + "' for canvas!" );
+            }
+            if ( null != document.getElementById(config.getCanvasId())) {
+                throw new Error('canvas already exists');
+            }
+
+            var container         = document.getElementById(config.getContainerId());
+            container.innerHTML   = '';
+
+            this.canvas           = document.createElement(config.getCanvasId());
+            this.canvas.width     = config.getWidth();
+            this.canvas.height    = config.getHeight();
+            this.canvas.id        = config.getCanvasId();
+            container.appendChild(this.canvas);
+        }
+        if ( ! this.canvas.getContext ) {
+            throw new Error('Missing canvas context.');
+        }
+        return this.canvas;
+    };
+
+    this.setTimer = function() {
+        this.timer = 0;
+    };
+    this.getTimer = function() {
+        return this.timer;
+    };
+
+    // init canvas
+    this.init = function()
+    {
+        window.scrollTo(0,1);
+        if (  (90 == window.orientation)  || (-90 == window.orientation) ) {
+            if (    (null == this.lastOrientation)
+                || ('vertical' == this.lastOrientation) ) {
+                this.createPad(config.getHorizontalWidth(), config.getHorizontalHeight());
+            }
+            this.lastOrientation = 'horizontal';
+        } else {
+            if (    (null == this.lastOrientation)
+                || ( 'horizontal' == this.lastOrientation)
+            ) {
+                this.createPad(config.getVerticalWidth(), config.getVerticalHeight());
+            }
+            this.lastOrientation = 'vertical';
+        }
+        window.scrollTo(0,1);
+    };
+
+    // fill the canvas
+    this.createPad = function(width, height)
+    {
+       // this.createPad(this.horizontal.width, this.horizontal.height);
+
+        var canvas = this.getCanvas();
+        this.simulation = doConwaysGameOfLife( //config.getColumnCnt(canvas.width),
+                                               //config.getRowCnt(canvas.height),
+                                               width,
+                                               height,
+                                               config.getDeadColor(),
+                                               config.getAliveColor(),
+                                               config.getNeutralColor() );
+
+        this.simulation.draw(canvas);
+    };
+
+
+
+    this.simulationClean = function() {
+        throw new Error('implement simulationClean');
+    };
+
 
     //following code is executed when function is called
     //reset();
@@ -78,7 +217,6 @@ function GameOfLife( infoHandler ) {
 // main CONWAYS simulation function
 function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor )
 {
-
     // row = y, column = x
     // one dimensional array containing cell states (true means ailve)
     // cell at (y, x) is to be found as  y * columns + x
@@ -91,7 +229,7 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
             cells[cnt] = (Math.random() * 2 > 1.0);
         }
         iterationcount = 0;
-    }
+    };
 
     // kill all cells
     this.clean = function () {
@@ -99,7 +237,7 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
             cells[cnt] = false;
         }
         iterationcount = 0;
-    }
+    };
 
     // set a living cell
     this.setCell = function( xcoord, ycoord)
@@ -120,7 +258,7 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
                 cells[ ycnt * columns + xcnt] = true;
             }
         }
-    }
+    };
 
     this.cell = function( x, y){
         if ( 'torus' == sMode ) {
@@ -128,7 +266,7 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
         } else {
             return this.normalCell(x, y);
         }
-    }
+    };
 
     // cell must be inside the grid and tagged as alive in cells array
     this.normalCell = function( x, y ) {
@@ -140,7 +278,7 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
             blAlive = true;
         }
         return blAlive;
-    }
+    };
 
     // cell must be inside the grid and tagged as alive in cells array
     this.torusCell = function( x, y ) {
@@ -166,8 +304,7 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
             blAlive = true;
         }
         return blAlive;
-    }
-
+    };
 
     //for each run check the cell status
     // a cell has 8 neighbours (how about border cells?)
@@ -230,7 +367,7 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
         cells = nextState;
         iterationcount++;
         return blSomethingChanged;
-    }
+    };
 
     // draw onto a 2d canvas
     this.draw = function ( canvas ) {
@@ -262,7 +399,7 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
                 }
             }
         }
-    }
+    };
 
     // return some statistics data
     this.getStatistics = function() {
@@ -280,7 +417,7 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
             }
         }
         return statObject;
-    }
+    };
 
     //following code is executed when function is called
     reset();
@@ -295,9 +432,14 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
 //-------------------------
 //status information
 function InfoHandler( infodivname ) {
+
+    this.getName = function() {
+        return 'InfoHandler';
+    };
+
     this.infodiv = document.getElementById( infodivname );
     if ( ! this.infodiv instanceof HTMLDivElement ) {
-        throw "Cannot access infodiv!"
+        throw new Error("Cannot access infodiv!");
     }
 
     //show status information
@@ -317,14 +459,18 @@ $( window ).load(
 
         if ( 'Tests for Conways Game of Life' != document.title ) {
             try {
-                var info = new InfoHandler( 'runtimeinfo' );
-                var game = new GameOfLife( info );
+                var info   = new InfoHandler( 'runtimeinfo' );
+                var config = new GolConfig( 100, 200, 'container' );
+                var game   = new GameOfLife( config, info );
+
+                game.init();
+                //game.createPad();
 
 
-                //game.createPad(100, 200);
+                //game.createPad();
                 //game.changeMode();
             }
-            catch(err) {
+            catch(err) { alert(err.message);
                 document.getElementById("runtimeinfo").innerHTML = err.message;
             }
         }
