@@ -5,7 +5,14 @@
 * For now: all rights reserved.
  */
 
+
+
+
 // configuration
+// parameters: - width       width available for game area
+//             - height      height available for game area
+//             - containerid id of container div for canvas
+//
 function GolConfig( width, height, containerid )
 {
     if ( !$.isNumeric(width) ) {
@@ -20,11 +27,11 @@ function GolConfig( width, height, containerid )
     this.aliveColor   = '#446ED9';
     this.neutralColor = '#132042'; //'#000000';
     this.gridBorder   = 1;
-    this.gridSize      = 13;
-    this.width         = Math.ceil(width);
-    this.height        = Math.ceil(height);
-    this.canvasid    = 'canvas';
-    this.containerid = 'container';
+    this.gridSize     = 13;
+    this.width        = Math.ceil(width);
+    this.height       = Math.ceil(height);
+    this.canvasid     = 'canvas';
+    this.containerid  = 'container';
 
     if ( 0 < containerid.length ) {
         this.containerid = containerid;
@@ -33,6 +40,10 @@ function GolConfig( width, height, containerid )
     // we have 10px padding to the left and 2px to the top
     this.leftOffset = 10;
     this.topOffset  = 2;
+
+    //canvas dimensions
+    this.canvasWidth  = width - 2*this.leftOffset;
+    this.canvasHeight = height - this.topOffset;
 
     // getters
     this.getName = function() {
@@ -65,6 +76,8 @@ function GolConfig( width, height, containerid )
     this.getTopOffset = function() {
         return this.topOffset;
     };
+
+    /*
     this.getHorizontalWidth = function() {
         return 35 * this.gridSize + 1;
     };
@@ -80,18 +93,17 @@ function GolConfig( width, height, containerid )
             height = 28 * this.gridSize + 1;
         }
         return height;
-    };
+    }; */
 
     //calculate number of columns canvas will have
-    this.getColumnCnt = function (canvasWidth) {
-        var columns = Math.floor((canvasWidth - this.gridBorder) / this.gridSize);
+    this.getColumnCnt = function () {
+        var columns = Math.floor((this.canvasWidth - this.gridBorder) / this.gridSize);
         return columns;
     };
 
     //calculate number of rows canvas will have
-    this.getRowCnt = function (canvasHeight) {
-        //var rows = Math.floor( (canvasHeight - this.gridBorder)/this.gridSize );
-        var rows = Math.floor((canvasHeight - this.gridBorder) / this.gridSize);
+    this.getRowCnt = function () {
+        var rows = Math.floor((this.canvasHeight - this.gridBorder) / this.gridSize);
         return rows;
     };
 
@@ -110,7 +122,7 @@ function GolConfig( width, height, containerid )
 
 }
 
-
+// game handler
 function GameOfLife( config, infoHandler ) {
 
     this.canvas          = null;
@@ -161,7 +173,7 @@ function GameOfLife( config, infoHandler ) {
     this.getTimer = function() {
         return this.timer;
     };
-
+/*
     // init canvas
     this.init = function()
     {
@@ -182,86 +194,128 @@ function GameOfLife( config, infoHandler ) {
         }
         window.scrollTo(0,1);
     };
-
+*/
     // fill the canvas
-    this.createPad = function(width, height)
+    this.createPad = function()
     {
-       // this.createPad(this.horizontal.width, this.horizontal.height);
-
         var canvas = this.getCanvas();
-        this.simulation = doConwaysGameOfLife( //config.getColumnCnt(canvas.width),
-                                               //config.getRowCnt(canvas.height),
-                                               width,
-                                               height,
-                                               config.getDeadColor(),
-                                               config.getAliveColor(),
-                                               config.getNeutralColor() );
+        this.simulation = new ConwaysSimlation( config, this.canvas );
+        this.simulation.draw(canvas);
+        infoHandler.showInfo('ready');
+    };
 
+    // kill all the cells
+    this.simulationClean = function() {
+        if (null == this.simulation) {
+            throw new Error('simulation object missing!');
+        }
+        this.simulation.clean();
         this.simulation.draw(canvas);
     };
 
+    // start simulation
+    this.simulationStart = function()
+    {
+        if (null == this.canvas) {
+            throw new Error('No canvas yet!');
+        }
+        if (null == this.canvas.getContext) {
+            throw new Error('Canvas context is missing!');
+        }
+        if (null == this.simulation) {
+            throw new Error('Simulation object missing!');
+        }
+        if (this.timer != 0) {
+            throw new Error('Simulation already running!');
+        }
 
-
-    this.simulationClean = function() {
-        throw new Error('implement simulationClean');
+        this.runSimulation();
+        this.timer = window.setInterval('runSimulation()', 500);
     };
 
+    // function runs simulation as long as there are changes in cell state
+    this.runSimulation = function()
+    {
+        if (null == this.simulation) {
+            throw new Error('Simulation object missing!');
+        }
+
+        var blNextStep = this.simulation.nextStep();
+
+        // as long as we have a change in state between current and next step the simulation runs
+        if ( blNextStep ) {
+            this.simulation.draw(this.canvas);
+            info.showInfo('running');
+        } else {
+            info.showInfo('ended');
+            this.simulationHasEnded();
+        }
+    };
 
     //following code is executed when function is called
     //reset();
-    return this;
+    //return this;
 }
 
 //-----------------------------
 
 // main CONWAYS simulation function
-function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor )
+function ConwaysSimlation( config, canvas )
 {
+    if ('GolConfig' != config.getName()) {
+        throw new Error('Parameter config is not of type GolConfig!');
+    }
+
+    this.rows           = config.getRowCnt();
+    this.columns        = config.getColumnCnt();
+    this.iterationcount = null;
+
     // row = y, column = x
-    // one dimensional array containing cell states (true means ailve)
+    // one dimensional array containing cell states (true means alive)
     // cell at (y, x) is to be found as  y * columns + x
-    this.cells = new Array( rows * columns ); // y, x :1,1 -> 1,2 \n 2,1 -> 2,2
+    this.cells = new Array( this.rows * this.columns ); // y, x :1,1 -> 1,2 \n 2,1 -> 2,2
 
     // we need some initial state, for now randomize
     // - TODO: let user set initial state -> possible using setCell
     this.reset = function () {
-        for ( var cnt = 1; cnt < rows * columns; cnt++) {
-            cells[cnt] = (Math.random() * 2 > 1.0);
+        for ( var cnt = 1; cnt < this.rows * this.columns; cnt++) {
+            this.cells[cnt] = (Math.random() * 2 > 1.0);
         }
-        iterationcount = 0;
+        this.iterationcount = 0;
     };
 
     // kill all cells
     this.clean = function () {
-        for ( var cnt = 0; cnt < rows * columns; cnt++) {
-            cells[cnt] = false;
+        for ( var cnt = 0; cnt < this.rows * this.columns; cnt++) {
+            this.cells[cnt] = false;
         }
-        iterationcount = 0;
+        this.iterationcount = 0;
     };
 
     // set a living cell
     this.setCell = function( xcoord, ycoord)
     {
-        var width  = Math.floor(canvas.width / columns);
-        var height = Math.floor(canvas.height / rows);
+        var width  = Math.floor(canvas.width / this.columns);
+        var height = Math.floor(canvas.height / this.rows);
 
         // determine which cell is addressed
         var xcnt = Math.floor( (xcoord  - 1)/width );
         var ycnt = Math.floor( (ycoord  - 1)/height );
 
-        if (    (ycnt >= 0) && (ycnt < rows)
-            && (xcnt >= 0) && (xcnt < columns) )
+        if (    (ycnt >= 0) && (ycnt < this.rows)
+            && (xcnt >= 0) && (xcnt < this.columns) )
         {
-            if (cells[ ycnt * columns + xcnt]) {
-                cells[ ycnt * columns + xcnt] = false;
+            if (this.cells[ ycnt * this.columns + xcnt]) {
+                this.cells[ ycnt * this.columns + xcnt] = false;
             } else {
-                cells[ ycnt * columns + xcnt] = true;
+                this.cells[ ycnt * this.columns + xcnt] = true;
             }
         }
     };
 
-    this.cell = function( x, y){
-        if ( 'torus' == sMode ) {
+    // cell
+    this.cell = function(x, y){
+        if ( 'torus' == config.getMode() ) {
             return this.torusCell(x, y);
         } else {
             return this.normalCell(x, y);
@@ -271,9 +325,9 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
     // cell must be inside the grid and tagged as alive in cells array
     this.normalCell = function( x, y ) {
         var blAlive = false;
-        if (     (y >= 0) && (y < rows)
-            && (x >= 0) && (x < columns)
-            && this.cells[ y* columns + x ] )
+        if (     (y >= 0) && (y < this.rows)
+            && (x >= 0) && (x < this.columns)
+            && this.cells[ y* this.columns + x ] )
         {
             blAlive = true;
         }
@@ -286,20 +340,20 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
         var newx = x;
         var newy = y;
         if ( 0 > x ) {
-            newx = columns - 1;
+            newx = this.columns - 1;
         }
         if ( 0 > y ) {
-            newy = rows - 1;
+            newy = this.rows - 1;
         }
-        if ( (columns -1 ) < x ) {
+        if ( (this.columns -1 ) < x ) {
             newx = 0;
         }
-        if ( (rows -1 ) < y ) {
+        if ( (this.rows -1 ) < y ) {
             newy = 0;
         }
-        if (     (newy >= 0) && (newy < rows)
-            && (newx >= 0) && (newx < columns)
-            && this.cells[ newy* columns + newx ] )
+        if (     (newy >= 0) && (newy < this.rows)
+            && (newx >= 0) && (newx < this.columns)
+            && this.cells[ newy* this.columns + newx ] )
         {
             blAlive = true;
         }
@@ -314,15 +368,15 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
     //     - a living cell with two or three livin neighbours will stay alive
     //     - a living cell with more than three living neighbours dies
     this.nextStep = function() {
-        var nextState = Array( columns * rows );
+        var nextState = Array( this.columns * this.rows );
         // if at least one cell changed this will be true and indicate that the simulation is still alive
         var blSomethingChanged = false;
-        for (var cellx = 0; cellx < columns; cellx++) {
-            for (var celly = 0; celly < rows; celly++) {
+        for (var cellx = 0; cellx < this.columns; cellx++) {
+            for (var celly = 0; celly < this.rows; celly++) {
 
                 var livingNeighbourCount = 0;
                 var blCurrentCellAlive = cell(cellx, celly);
-                nextState[celly * columns + cellx] = false;
+                nextState[celly * this.columns + cellx] = false;
 
                 // the current cell resides at cellx, celly
                 // we need to consider the following neighbouring cells: (coordinate combinations)
@@ -343,23 +397,23 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
                 }
                 // a dead cell with exactly three living neighbours will be reborn
                 if ( (3 == livingNeighbourCount) &&  !blCurrentCellAlive) {
-                    nextState[celly * columns + cellx] = true;
+                    nextState[celly * this.columns + cellx] = true;
                 }
                 // a living cell with less than two living neighbours dies
                 if ( (3 > livingNeighbourCount) &&  blCurrentCellAlive) {
-                    nextState[celly * columns + cellx] = false;
+                    nextState[celly * this.columns + cellx] = false;
                 }
                 // a living cell with two or three livin neighbours will stay alive
                 if ( ( (2 == livingNeighbourCount)  || (3 == livingNeighbourCount) )
                     &&  blCurrentCellAlive) {
-                    nextState[celly * columns + cellx] = true;
+                    nextState[celly * this.columns + cellx] = true;
                 }
                 // a living cell with more than three living neighbours dies
                 if ( (3 < livingNeighbourCount) &&  blCurrentCellAlive) {
-                    nextState[celly * columns + cellx] = false;
+                    nextState[celly * this.columns + cellx] = false;
                 }
                 // check if something changed for this cell
-                if ( blCurrentCellAlive != nextState[celly * columns + cellx] ) {
+                if ( blCurrentCellAlive != nextState[celly * this.columns + cellx] ) {
                     blSomethingChanged = true;
                 }
             }
@@ -372,29 +426,28 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
     // draw onto a 2d canvas
     this.draw = function ( canvas ) {
         var gamepad = canvas.getContext('2d');
-        var width  = Math.floor(canvas.width / columns);
-        var height = Math.floor(canvas.height / rows);
+        var width  = Math.floor(canvas.width / this.columns);
+        var height = Math.floor(canvas.height / this.rows);
 
         // first clear all, plus 1 is for the grid lines
-        gamepad.fillStyle = this.deadColor;
-        gamepad.fillRect(0, 0, columns * width, rows * height);
+        gamepad.fillStyle = config.getDeadColor();
+        gamepad.fillRect(0, 0, this.columns * width, this.rows * height);
 
         //now draw the cells
-        gamepad.fillStyle = this.aliveColor;
+        gamepad.fillStyle = config.getAliveColor();
         // we need a double loop, outer loop iterates over x values
         // inner loop runs over y values
-        for (var xcounter = 0; xcounter < columns; xcounter++) {
+        for (var xcounter = 0; xcounter < this.columns; xcounter++) {
             var xcoord = xcounter*width;
-            for (var ycounter = 0; ycounter < rows; ycounter++) {
+            for (var ycounter = 0; ycounter < this.rows; ycounter++) {
                 var ycoord = ycounter*height;
 
-                gamepad.fillStyle = this.neutralColor;
+                gamepad.fillStyle = config.getNeutralColor();
                 gamepad.fillRect( xcoord, ycoord, width, height);
 
                 // draw living and dead cells
-                if ( cells[ycounter*columns + xcounter] ) {
-
-                    gamepad.fillStyle = this.aliveColor;
+                if ( this.cells[ycounter*this.columns + xcounter] ) {
+                    gamepad.fillStyle = config.getAliveColor();
                     gamepad.fillRect( xcoord, ycoord, width-1, height-1);
                 }
             }
@@ -404,10 +457,10 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
     // return some statistics data
     this.getStatistics = function() {
         var statObject = new Object();
-        statObject.cellcount = rows * columns;
+        statObject.cellcount = this.rows * this.columns;
         statObject.livecount = 0;
         statObject.deadcount = 0;
-        statObject.iterationcount = iterationcount;
+        statObject.iterationcount = this.iterationcount;
 
         for ( var i=0; i<statObject.cellcount; i++) {
             if ( cells[i] ) {
@@ -419,8 +472,8 @@ function doConwaysGameOfLife( columns, rows, deadColor, aliveColor, neutralColor
         return statObject;
     };
 
-    //following code is executed when function is called
-    reset();
+    //following code is executed when object of type ConwaysSimlation is instantiated
+    this.reset();
     return this;
 }
 
@@ -460,19 +513,15 @@ $( window ).load(
         if ( 'Tests for Conways Game of Life' != document.title ) {
             try {
                 var info   = new InfoHandler( 'runtimeinfo' );
-                var config = new GolConfig( 100, 200, 'container' );
+                var config = new GolConfig( 400, 400, 'container' );
                 var game   = new GameOfLife( config, info );
 
-                game.init();
-                //game.createPad();
-
-
-                //game.createPad();
-                //game.changeMode();
+                game.createPad();
+                game.runSimulation();
             }
             catch(err) { alert(err.message);
                 document.getElementById("runtimeinfo").innerHTML = err.message;
             }
         }
     }
-)
+);
