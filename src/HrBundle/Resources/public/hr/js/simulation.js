@@ -5,8 +5,7 @@
 * For now: all rights reserved.
  */
 
-
-
+var sim = null;
 
 // configuration
 // parameters: - width       width available for game area
@@ -199,6 +198,11 @@ function GameOfLife( config, infoHandler ) {
     this.createPad = function()
     {
         var canvas = this.getCanvas();
+
+        if (null != this.simulation) {
+            throw new Error('Simulation already instantiated!');
+        }
+
         this.simulation = new ConwaysSimlation( config, this.canvas );
         this.simulation.draw(canvas);
         infoHandler.showInfo('ready');
@@ -229,8 +233,9 @@ function GameOfLife( config, infoHandler ) {
             throw new Error('Simulation already running!');
         }
 
-        this.runSimulation();
-        this.timer = window.setInterval('runSimulation()', 500);
+        sim = this;
+        this.timer = setInterval( function() { sim.runSimulation(); }, 500 );
+
     };
 
     // function runs simulation as long as there are changes in cell state
@@ -245,16 +250,15 @@ function GameOfLife( config, infoHandler ) {
         // as long as we have a change in state between current and next step the simulation runs
         if ( blNextStep ) {
             this.simulation.draw(this.canvas);
-            info.showInfo('running');
+            infoHandler.showInfo('running');
+
         } else {
-            info.showInfo('ended');
+            clearInterval(this.timer);
+            infoHandler.showInfo('ended');
             this.simulationHasEnded();
         }
-    };
 
-    //following code is executed when function is called
-    //reset();
-    //return this;
+    };
 }
 
 //-----------------------------
@@ -375,7 +379,7 @@ function ConwaysSimlation( config, canvas )
             for (var celly = 0; celly < this.rows; celly++) {
 
                 var livingNeighbourCount = 0;
-                var blCurrentCellAlive = cell(cellx, celly);
+                var blCurrentCellAlive = this.cell(cellx, celly);
                 nextState[celly * this.columns + cellx] = false;
 
                 // the current cell resides at cellx, celly
@@ -388,7 +392,7 @@ function ConwaysSimlation( config, canvas )
                 // simple implementation: just count how many neighbours are alive
                 for ( var i=-1; i<=1; i++ ) {
                     for ( var j=-1; j<=1; j++ ) {
-                        if (    cell(cellx + i, celly + j)
+                        if (    this.cell(cellx + i, celly + j)
                             && !( 0 == i && 0 == j )
                         ) {
                             livingNeighbourCount++;
@@ -418,8 +422,8 @@ function ConwaysSimlation( config, canvas )
                 }
             }
         }
-        cells = nextState;
-        iterationcount++;
+        this.cells = nextState;
+        this.iterationcount++;
         return blSomethingChanged;
     };
 
@@ -517,7 +521,7 @@ $( window ).load(
                 var game   = new GameOfLife( config, info );
 
                 game.createPad();
-                game.runSimulation();
+                game.simulationStart();
             }
             catch(err) { alert(err.message);
                 document.getElementById("runtimeinfo").innerHTML = err.message;

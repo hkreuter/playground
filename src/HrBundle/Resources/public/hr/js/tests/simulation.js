@@ -123,16 +123,12 @@ QUnit.test( "GameOfLife configuration",
         assert.equal( testee.getColumnCnt(), 6 );
         assert.equal( testee.getRowCnt(), 15 );
 
-        //assert.equal( testee.getHorizontalWidth(), 456 );
-        //assert.equal( testee.getHorizontalHeight(), 196 );
-        //assert.equal( testee.getVerticalWidth(), 300 );
-        //assert.equal( testee.getVerticalHeight(), 274 );
-
         assert.equal( testee.getName(), 'GolConfig' );
 
     }
 );
 
+//test canvas creation
 QUnit.test( "GameOfLife canvas creation fails",
     function( assert ) {
 
@@ -149,6 +145,7 @@ QUnit.test( "GameOfLife canvas creation fails",
     }
 );
 
+//test canvas creation
 QUnit.test( "GameOfLife canvas creation ok",
     function( assert ) {
 
