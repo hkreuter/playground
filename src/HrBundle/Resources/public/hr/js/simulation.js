@@ -5,7 +5,10 @@
 * For now: all rights reserved.
  */
 
-var sim = null;
+//var sim = null;
+var info   = null;
+var config = null;
+var game   = null;
 
 // configuration
 // parameters: - width       width available for game area
@@ -233,8 +236,8 @@ function GameOfLife( config, infoHandler ) {
             throw new Error('Simulation already running!');
         }
 
-        sim = this;
-        this.timer = setInterval( function() { sim.runSimulation(); }, 500 );
+        game = this;
+        this.timer = setInterval( function() { game.runSimulation(); }, 500 );
 
     };
 
@@ -259,6 +262,45 @@ function GameOfLife( config, infoHandler ) {
         }
 
     };
+
+    // stop simulation
+    this.simulationStop = function()
+    {
+        if (null == this.simulation) {
+            throw new Error('Simulation object missing!');
+        }
+        window.clearInterval(this.timer);
+        this.timer = 0;
+        infoHandler.showInfo('stopped');
+    };
+
+    // do a reset, only if simulation is not running
+    this.simulationReset = function()
+    {
+        if (null == this.simulation) {
+            throw new Error('Simulation object missing!');
+        }
+        if ( 0 == this.timer ) {
+            this.simulation.reset();
+            this.simulation.draw(this.canvas);
+            infoHandler.showInfo('initialized');
+        }
+    };
+
+    // kill all cells
+    this.simulationClean = function ( blDraw )
+    {
+        if (null == this.simulation) {
+            throw new Error('Simulation object missing!');
+        }
+        this.simulation.clean();
+        if ( blDraw ) {
+            this.simulation.draw(this.canvas);
+        }
+        clearInterval(this.timer);
+        this.timer = 0;
+        infoHandler.showInfo('cleaned');
+    }
 }
 
 //-----------------------------
@@ -516,12 +558,10 @@ $( window ).load(
 
         if ( 'Tests for Conways Game of Life' != document.title ) {
             try {
-                var info   = new InfoHandler( 'runtimeinfo' );
-                var config = new GolConfig( 400, 400, 'container' );
-                var game   = new GameOfLife( config, info );
-
+                info   = new InfoHandler( 'runtimeinfo' );
+                config = new GolConfig( 400, 400, 'container' );
+                game   = new GameOfLife( config, info );
                 game.createPad();
-                game.simulationStart();
             }
             catch(err) { alert(err.message);
                 document.getElementById("runtimeinfo").innerHTML = err.message;

@@ -7,17 +7,16 @@
 {% block body_main %}
 
     <div data-role="container" id="container">
-        BLAFOO
     </div>
 
     <div data-role="controls" id="buttons">
         <div data-role="content">
             <div data-role="controlgroup" data-type="horizontal" data-corners="true" data-mini="true" data-shadow="true">
-                <a href="#" data-role="button" data-theme="a" data-icon="arrow-r" name="start" onclick="simulationStart();">start</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="minus"   name="stop"  onclick="simulationStop();">stop</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="gear"    name="reset" onclick="simulationReset();">init</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="delete"  name="clean" onclick="simulationClean(true);">clean</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="grid"    name="mode"  onclick="changeMode();">mode</a>
+                <a href="#" data-role="button" data-theme="a" data-icon="arrow-r" name="start" onclick="game.simulationStart();">start</a>
+                <a href="#" data-role="button" data-theme="a" data-icon="minus"   name="stop"  onclick="game.simulationStop();">stop</a>
+                <a href="#" data-role="button" data-theme="a" data-icon="gear"    name="reset" onclick="game.simulationReset();">init</a>
+                <a href="#" data-role="button" data-theme="a" data-icon="delete"  name="clean" onclick="game.simulationClean(true);">clean</a>
+                <a href="#" data-role="button" data-theme="a" data-icon="grid"    name="mode"  onclick="config.switchMode();">mode</a>
                 <a href="#" data-role="button" data-theme="a" data-icon="info"    name="info"  onclick="showInfo();">info</a>
                 <a href="http://app/games" data-theme="a" data-role="button" data-icon="home"    name="home"  >home</a>
             </div>
