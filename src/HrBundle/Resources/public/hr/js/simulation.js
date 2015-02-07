@@ -130,6 +130,7 @@ function GameOfLife( config, infoHandler ) {
     this.canvas          = null;
     this.simulation      = null;
     this.lastOrientation = null;
+    this.status          = null;
     this.timer           = 0;
 
     this.getName = function() {
@@ -142,6 +143,10 @@ function GameOfLife( config, infoHandler ) {
     if ('InfoHandler' != infoHandler.getName()) {
         throw new Error('Parameter infoHandler is not of type infoHandler!');
     }
+
+    this.getStatus = function() {
+        return this.status;
+    };
 
     //append canvas element
     this.getCanvas = function() {
@@ -208,6 +213,7 @@ function GameOfLife( config, infoHandler ) {
 
         this.simulation = new ConwaysSimlation( config, this.canvas );
         this.simulation.draw(canvas);
+        this.status='ready';
         infoHandler.showInfo('ready');
     };
 
@@ -220,9 +226,8 @@ function GameOfLife( config, infoHandler ) {
         this.simulation.draw(canvas);
     };
 
-    // start simulation
-    this.simulationStart = function()
-    {
+    //check mandatories
+    this.checkPrerequisites = function() {
         if (null == this.canvas) {
             throw new Error('No canvas yet!');
         }
@@ -232,54 +237,52 @@ function GameOfLife( config, infoHandler ) {
         if (null == this.simulation) {
             throw new Error('Simulation object missing!');
         }
+    };
+
+    // start simulation
+    this.simulationStart = function()
+    {
+        this.checkPrerequisites();
+
         if (this.timer != 0) {
             throw new Error('Simulation already running!');
         }
-
         game = this;
         this.timer = setInterval( function() { game.runSimulation(); }, 500 );
-
     };
 
     // function runs simulation as long as there are changes in cell state
     this.runSimulation = function()
     {
-        if (null == this.simulation) {
-            throw new Error('Simulation object missing!');
-        }
-
+        this.checkPrerequisites();
         var blNextStep = this.simulation.nextStep();
 
         // as long as we have a change in state between current and next step the simulation runs
         if ( blNextStep ) {
             this.simulation.draw(this.canvas);
+            this.status = 'running';
             infoHandler.showInfo('running');
 
         } else {
-            clearInterval(this.timer);
+            this.stopTimer();
+            this.status = 'ended';
             infoHandler.showInfo('ended');
-            this.simulationHasEnded();
         }
-
     };
 
     // stop simulation
     this.simulationStop = function()
     {
-        if (null == this.simulation) {
-            throw new Error('Simulation object missing!');
-        }
-        window.clearInterval(this.timer);
-        this.timer = 0;
+        this.stopTimer();
+        this.status = 'stopped';
         infoHandler.showInfo('stopped');
     };
 
     // do a reset, only if simulation is not running
     this.simulationReset = function()
     {
-        if (null == this.simulation) {
-            throw new Error('Simulation object missing!');
-        }
+        this.checkPrerequisites();
+
         if ( 0 == this.timer ) {
             this.simulation.reset();
             this.simulation.draw(this.canvas);
@@ -290,17 +293,72 @@ function GameOfLife( config, infoHandler ) {
     // kill all cells
     this.simulationClean = function ( blDraw )
     {
-        if (null == this.simulation) {
-            throw new Error('Simulation object missing!');
-        }
+        this.checkPrerequisites();
         this.simulation.clean();
+
         if ( blDraw ) {
             this.simulation.draw(this.canvas);
         }
-        clearInterval(this.timer);
-        this.timer = 0;
+        this.stopTimer();
+        this.status = 'cleaned';
         infoHandler.showInfo('cleaned');
-    }
+    };
+
+    //Stop the timer
+    this.stopTimer = function()
+    {
+        if (null == this.simulation) {
+            throw new Error('Simulation object missing!');
+        }
+        if (0 != this.timer) {
+            window.clearInterval(this.timer);
+            this.timer = 0;
+        }
+    };
+
+    // set a cell, used for manual setup
+    this.setCell = function( eventsource )
+    {
+        this.checkPrerequisites();
+
+        //check type of that event
+        var eventType = eventsource.type;
+        var status = this.getStatus();
+
+        if (    ('ready'   == status)
+             || ('cleaned' == status)
+             || ('stopped' == status)
+           ) {
+            if ( 'touchstart' == eventType) {
+                //use this for ipod touchscreen
+                var mousex = eventsource.touches[0].pageX;
+                var mousey = eventsource.touches[0].pageY;
+            } else {
+                var mousex = document.all ? window.event.clientX : eventsource.pageX;
+                var mousey = document.all ? window.event.clientY : eventsource.pageY;
+            }
+
+            var boundingRect = document.getElementById(config.getCanvasId()).getBoundingClientRect();
+            var offsetHeight = Math.ceil(boundingRect.top - config.getTopOffset());
+            this.simulation.setCell(mousex, mousey - offsetHeight);
+            this.simulation.draw(canvas);
+        }
+    };
+
+    this.showStatistics = function()
+    {
+        this.checkPrerequisites();
+        var oStats = this.simulation.getStatistics();
+
+        var message = '<table> ' +
+                      '<tr><td>' + 'State </td><td> ' + this.getStatus() + '</td></tr>' +
+                      '<tr><td>' + 'Border mode </td><td> ' + config.getMode() + '</td></tr>' +
+                      '<tr><td>' + 'Live cells </td><td>' + oStats.livecount + ' of ' + oStats.cellcount + '</td></tr>' +
+                      '<tr><td>' + 'Iterations </td><td>' + oStats.iterationcount + '</td></tr>' +
+                      '</table>';
+
+        info.showInfo(message);
+    };
 }
 
 //-----------------------------
@@ -501,7 +559,8 @@ function ConwaysSimlation( config, canvas )
     };
 
     // return some statistics data
-    this.getStatistics = function() {
+    this.getStatistics = function()
+    {
         var statObject = new Object();
         statObject.cellcount = this.rows * this.columns;
         statObject.livecount = 0;
@@ -509,7 +568,7 @@ function ConwaysSimlation( config, canvas )
         statObject.iterationcount = this.iterationcount;
 
         for ( var i=0; i<statObject.cellcount; i++) {
-            if ( cells[i] ) {
+            if ( this.cells[i] ) {
                 statObject.livecount++;
             } else {
                 statObject.deadcount++;
@@ -522,10 +581,6 @@ function ConwaysSimlation( config, canvas )
     this.reset();
     return this;
 }
-
-
-
-
 
 
 //-------------------------
@@ -559,13 +614,21 @@ $( window ).load(
         if ( 'Tests for Conways Game of Life' != document.title ) {
             try {
                 info   = new InfoHandler( 'runtimeinfo' );
-                config = new GolConfig( 400, 400, 'container' );
+                config = new GolConfig( 570, 570, 'container' );
                 game   = new GameOfLife( config, info );
                 game.createPad();
-            }
-            catch(err) { alert(err.message);
-                document.getElementById("runtimeinfo").innerHTML = err.message;
+            } catch(err) {
+                document.getElementById("errorinfo").innerHTML = err.message;
             }
         }
     }
 );
+
+$( "#container" ).bind( "click ontouchstart", function(event) {
+    try {
+        game.setCell(event);
+    } catch(err) {
+        document.getElementById("errorinfo").innerHTML = err.message;
+    }
+});
+

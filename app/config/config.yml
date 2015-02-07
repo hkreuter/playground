@@ -67,6 +67,10 @@ assetic:
             inputs:
                 - '@HrBundle/Resources/public/hr/js/simulation.js'
             output: js/hrbundle_simulation.js
+        bundle_hr_js_solitaire:
+            inputs:
+                - '@HrBundle/Resources/public/hr/js/solitaire.js'
+            output: js/hrbundle_solitaire.js
         bundle_hr_js_tests:
             inputs:
                 - '@HrBundle/Resources/public/hr/js/tests/simulation.js'

@@ -1,46 +1,35 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
-<head>
-    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta http-equiv="content-language" content="en" />
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <link rel="shortcut icon" href="img/favicon.ico">
-    <link rel="stylesheet" type="text/css" media="screen" href="/css/ipod.css" />
-    <script type="text/javascript" src="/js/iSolitaire.js"></script>
-    <title>Solitaire</title>
-</head>
+{% extends 'HrBundle:Games:index.html.twig' %}
 
-<body class = "gamecontainer" onload="checkClient();initInfo('gameinfo');init();" onorientationchange="initInfo('gameinfo');init();" >
+{% block title %}
+    Solitaire
+{% endblock %}
 
-<div id="solitaire" class="body simulation" >
+{% block body_main %}
 
-    <div id="container" ontouchstart="gameSelectBall(event);" ></div>
+    <div data-role="container" id="container"></div>
 
-    <table width="320px" >
-        <tr>
-            <td>
-                <div id="buttons" class="solbutton">
-                    <input type="button" class="reset" name="reset" value="Reset" onclick="solitaireReset();" />
-                </div>
-            </td>
-            <td>
-                <div id="gameinfo" >
-                    <table>
-                        <tr>
-                            <td>Time played</td>
-                            <td>&nbsp;</td>
-                            <td><div id="timer"></td>
-                        </tr>
-                    </table>
-                </div>
+    <div data-role="controls" id="buttons-bottom">
+        <div data-role="content">
+            <div data-role="controlgroup" data-type="horizontal" data-corners="true" data-mini="true" data-shadow="true">
+                <a href="http://app/games" data-theme="a" data-role="button" data-icon="home"    name="home"  >home</a>
+                <a href="#" data-role="button" data-theme="a" data-icon="gear"    name="reset" onclick="game.simulationReset();">init</a>
+            </div>
+        </div>
+    </div>
 
-            </td>
-        </tr>
-    </table>
-
+    <div id="runtimeinfo" class="siminfo"></div>
+    <div id="errorinfo" class="siminfo"></div>
     <div id="subinfo" class="siminfo moreinfo">- Solitaire -</div>
-</div>
 
-</body>
-</html>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {% javascripts '@jquery_and_ui'
+    '@bundle_hr_js_solitaire' %}
+    <script src="{{ asset_url }}"></script>
+    {% endjavascripts %}
+
+{% endblock %}
+
