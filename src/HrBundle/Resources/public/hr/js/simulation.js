@@ -5,9 +5,8 @@
 * For now: all rights reserved.
  */
 
-//var sim = null;
-var info   = null;
-var config = null;
+//var info   = null;
+//var config = null;
 var game   = null;
 
 // configuration
@@ -121,7 +120,6 @@ function GolConfig( width, height, containerid )
     this.getMode = function() {
         return this.mode;
     };
-
 }
 
 // game handler
@@ -211,7 +209,7 @@ function GameOfLife( config, infoHandler ) {
             throw new Error('Simulation already instantiated!');
         }
 
-        this.simulation = new ConwaysSimlation( config, this.canvas );
+        this.simulation = new ConwaysSimulation( config, this.canvas );
         this.simulation.draw(canvas);
         this.status='ready';
         infoHandler.showInfo('ready');
@@ -361,10 +359,8 @@ function GameOfLife( config, infoHandler ) {
     };
 }
 
-//-----------------------------
-
 // main CONWAYS simulation function
-function ConwaysSimlation( config, canvas )
+function ConwaysSimulation( config, canvas )
 {
     if ('GolConfig' != config.getName()) {
         throw new Error('Parameter config is not of type GolConfig!');
@@ -577,7 +573,7 @@ function ConwaysSimlation( config, canvas )
         return statObject;
     };
 
-    //following code is executed when object of type ConwaysSimlation is instantiated
+    //following code is executed when object of type ConwaysSimulation is instantiated
     this.reset();
     return this;
 }
