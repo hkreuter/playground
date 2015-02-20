@@ -71,14 +71,6 @@ function SolConfig( width, height, containerid )
                                 0, 0, 0, 0, 0, 0, 0,
                                 0, 0, 0, 0, 0, 0, 0];
 
-    this.ballsTest = [0, 0, 0, 0, 0, 0, 0,
-                      0, 0, 0, 0, 0, 0, 0,
-                      0, 0, 0, 0, 0, 0, 0,
-                      0, 0, 0, 0, 0, 0, 0,
-                      0, 0, 0, 0, 0, 1, 1,
-                      0, 0, 1, 1, 0, 0, 0,
-                      0, 0, 0, 0, 0, 0, 0];
-
     //getters
     this.getName = function() {
         return 'SolConfig';
@@ -105,7 +97,7 @@ function SolConfig( width, height, containerid )
     this.getBallsDefault = function() {
         var ret = new Array();
         for ( var i = 0; i < this.getRowCount() * this.getColumnCount(); i++ ) {
-            ret[i] = this.ballsTest[i];
+            ret[i] = this.ballsDefault[i];
         }
         return ret;
     };
@@ -253,7 +245,7 @@ function Solitaire( config, info ) {
         if (    ('running' == this.getStatus() )
              && ( 0 == possibleMoves )
            ) {
-            stopTimer();
+            stopTimer(false);
             if (1 < ballsLeft ) {
 
                 this.setStatus('lost');
@@ -274,10 +266,9 @@ function Solitaire( config, info ) {
         if ('ready' != this.getStatus()) {
             this.core.reset();
             this.setStatus('ready');
-            stopTimer();
+            stopTimer(true);
         }
     }
-
 };
 
 // game core
@@ -502,9 +493,6 @@ SolitaireCore = function(config, canvas) {
             }
         }
 
-        alert(this.getPossibleMoves());
-
-
         //ball must be inside the game area, on an allowed field
         if (   (ycnt >= 0) && (ycnt < config.getRowCount())
             && (xcnt >= 0) && (xcnt < config.getColumnCount())
@@ -549,11 +537,13 @@ function startTimer(){
 }
 
 // stop timer
-function stopTimer(){
+function stopTimer(haltTimeTracker){
     window.clearInterval(interval);
-    timer.stopTimer(true);
-    timer.showDisplay();
-    timer = null;
+    if (haltTimeTracker) {
+        timer.stopTimer(true);
+        timer.showDisplay();
+        timer = null;
+    }
 };
 
 //page load
