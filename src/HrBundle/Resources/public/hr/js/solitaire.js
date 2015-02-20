@@ -212,11 +212,11 @@ function Solitaire( config, info ) {
 
             if ('touchstart' == eventType) {
                 //use this for ipod touchscreen
-                var mousex = eventsource.touches[0].pageX;
-                var mousey = eventsource.touches[0].pageY;
+                var mousex = eventsource.touches[0].clientX;
+                var mousey = eventsource.touches[0].clientY;
             } else {
-                var mousex = document.all ? window.event.clientX : eventsource.pageX;
-                var mousey = document.all ? window.event.clientY : eventsource.pageY;
+                var mousex = eventsource.clientX;
+                var mousey = eventsource.clientY;
             }
 
             var boundingRect = document.getElementById(config.getCanvasId()).getBoundingClientRect();
