@@ -12,38 +12,16 @@
         <div data-role="content">
             <div data-role="controlgroup" data-type="horizontal" data-corners="true" data-mini="true" data-shadow="true">
                 <a href="http://app/games" data-theme="a" data-role="button" data-icon="home"    name="home"  >home</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="arrow-r" name="start" onclick="game.simulationStart();">start</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="minus"   name="stop"  onclick="game.simulationStop();">stop</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="gear"    name="reset" onclick="game.simulationReset();">init</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="delete"  name="clean" onclick="game.simulationClean(true);">clean</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="grid"    name="mode"  onclick="config.switchMode();">mode</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="info"    name="info"  onclick="game.showStatistics();">info</a>
+                <a href="#" data-role="button" data-theme="a" data-icon="arrow-r" id="start" name="start" >start</a>
+                <a href="#" data-role="button" data-theme="a" data-icon="minus"   id="stop"  name="stop"  >stop</a>
+                <a href="#" data-role="button" data-theme="a" data-icon="gear"    id="reset" name="reset" >init</a>
+                <a href="#" data-role="button" data-theme="a" data-icon="delete"  id="clean" name="clean" >clean</a>
+                <a href="#" data-role="button" data-theme="a" data-icon="grid"    id="mode"  name="mode"  >mode</a>
+                <a href="#" data-role="button" data-theme="a" data-icon="info"    id="info"  name="info"  >info</a>
             </div>
         </div>
     </div>
 
-
-    <!--
-    <div data-role="controls" id="buttons-bottom">
-        <div data-role="content">
-            <div data-role="controlgroup" data-type="horizontal" data-corners="true" data-mini="true" data-shadow="true">
-                <a href="#" data-role="button" data-theme="a" data-icon="arrow-r" name="start" onclick="game.simulationStart();">start</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="minus"   name="stop"  onclick="game.simulationStop();">stop</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="gear"    name="reset" onclick="game.simulationReset();">init</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="delete"  name="clean" onclick="game.simulationClean(true);">clean</a>
-            </div>
-        </div>
-    </div>
-    <div data-role="controls" id="buttons-top">
-        <div data-role="content">
-            <div data-role="controlgroup" data-type="horizontal" data-corners="true" data-mini="true" data-shadow="true">
-                <a href="http://app/games" data-theme="a" data-role="button" data-icon="home"    name="home"  >home</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="grid"    name="mode"  onclick="config.switchMode();">mode</a>
-                <a href="#" data-role="button" data-theme="a" data-icon="info"    name="info"  onclick="game.showStatistics();">info</a>
-            </div>
-        </div>
-    </div>
--->
     <div id="runtimeinfo" class="siminfo"></div>
     <div id="errorinfo" class="siminfo"></div>
     <div id="subinfo" class="siminfo moreinfo">- Conways Game of Life -</div>

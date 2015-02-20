@@ -5,8 +5,6 @@
 * For now: all rights reserved.
  */
 
-//var info   = null;
-//var config = null;
 var game   = null;
 
 // configuration
@@ -329,11 +327,11 @@ function GameOfLife( config, infoHandler ) {
            ) {
             if ( 'touchstart' == eventType) {
                 //use this for ipod touchscreen
-                var mousex = eventsource.touches[0].pageX;
-                var mousey = eventsource.touches[0].pageY;
+                var mousex = eventsource.touches[0].clientX;
+                var mousey = eventsource.touches[0].clientY;
             } else {
-                var mousex = document.all ? window.event.clientX : eventsource.pageX;
-                var mousey = document.all ? window.event.clientY : eventsource.pageY;
+                var mousex = eventsource.clientX;
+                var mousey = eventsource.clientY;
             }
 
             var boundingRect = document.getElementById(config.getCanvasId()).getBoundingClientRect();
@@ -348,6 +346,7 @@ function GameOfLife( config, infoHandler ) {
         this.checkPrerequisites();
         var oStats = this.simulation.getStatistics();
 
+        /*
         var message = '<table> ' +
                       '<tr><td>' + 'State </td><td> ' + this.getStatus() + '</td></tr>' +
                       '<tr><td>' + 'Border mode </td><td> ' + config.getMode() + '</td></tr>' +
@@ -356,6 +355,12 @@ function GameOfLife( config, infoHandler ) {
                       '</table>';
 
         info.showInfo(message);
+        */
+        var message = 'State: ' + this.getStatus() + "\n" +
+                      'Border mode: ' + config.getMode() + "\n" +
+                      'Live cells: ' + oStats.livecount + ' of ' + oStats.cellcount + "\n" +
+                      'Iterations: ' + oStats.iterationcount;
+        alert(message);
     };
 }
 
@@ -628,3 +633,50 @@ $( "#container" ).bind( "click ontouchstart", function(event) {
     }
 });
 
+$( "#start" ).bind( "click ontouchstart", function(event) {
+    try {
+        game.simulationStart();
+    } catch(err) {
+        document.getElementById("errorinfo").innerHTML = err.message;
+    }
+});
+
+$( "#stop" ).bind( "click ontouchstart", function(event) {
+    try {
+        game.simulationStop();
+    } catch(err) {
+        document.getElementById("errorinfo").innerHTML = err.message;
+    }
+});
+
+$( "#reset" ).bind( "click ontouchstart", function(event) {
+    try {
+        game.simulationReset();
+    } catch(err) {
+        document.getElementById("errorinfo").innerHTML = err.message;
+    }
+});
+
+$( "#clean" ).bind( "click ontouchstart", function(event) {
+    try {
+        game.simulationClean(true);
+    } catch(err) {
+        document.getElementById("errorinfo").innerHTML = err.message;
+    }
+});
+
+$( "#mode" ).bind( "click ontouchstart", function(event) {
+    try {
+        config.switchMode();
+    } catch(err) {
+        document.getElementById("errorinfo").innerHTML = err.message;
+    }
+});
+
+$( "#info" ).bind( "click ontouchstart", function(event) {
+    try {
+        game.showStatistics();
+    } catch(err) {
+        document.getElementById("errorinfo").innerHTML = err.message;
+    }
+});
