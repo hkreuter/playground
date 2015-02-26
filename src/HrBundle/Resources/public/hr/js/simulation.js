@@ -1,5 +1,5 @@
 /*
-* Conways Game of Life implementation by HR
+* Conway's Game of Life implementation by HR
 * Last change 2015-01-31 by HR
 *
 * For now: all rights reserved.
@@ -612,7 +612,7 @@ $( window ).load(
 
     function() {
 
-        if ( 'Tests for Conways Game of Life' != document.title ) {
+        if ( "Tests for Conway's Game of Life" != document.title ) {
             try {
                 info   = new InfoHandler( 'runtimeinfo' );
                 config = new GolConfig( 570, 570, 'container' );

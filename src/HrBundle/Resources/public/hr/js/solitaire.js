@@ -549,16 +549,14 @@ function stopTimer(haltTimeTracker){
 //page load
 $(window).load(
     function () {
-        if ('Tests for Conways Game of Life' != document.title) {
-            try {
-                var info   = new InfoHandler('runtimeinfo');
-                var config = new SolConfig(400, 400, 'container');
-                game       = new Solitaire(config, info);
-                game.createPad();
+        try {
+            var info   = new InfoHandler('runtimeinfo');
+            var config = new SolConfig(400, 400, 'container');
+            game       = new Solitaire(config, info);
+            game.createPad();
 
-            } catch (err) {
-                document.getElementById("errorinfo").innerHTML = err.message;
-            }
+        } catch (err) {
+            document.getElementById("errorinfo").innerHTML = err.message;
         }
     }
 );

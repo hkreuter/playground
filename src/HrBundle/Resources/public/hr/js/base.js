@@ -107,13 +107,17 @@ function GameBase(config) {
     this.canvas = null;
 
     //append canvas element
-    this.getCanvas = function() {
+    this.getCanvas = function(canvasId) {
+
+        if (typeof canvasId === "undefined") {
+            canvasId = config.getCanvasId();
+        }
 
         if ( null == this.canvas ) {
             if ( null == document.getElementById(config.getContainerId()) ) {
                 throw new Error( "Need element with id '" + config.getContainerId() + "' for canvas!" );
             }
-            if ( null != document.getElementById(config.getCanvasId())) {
+            if ( null != document.getElementById(canvasId)) {
                 throw new Error('canvas already exists');
             }
 
