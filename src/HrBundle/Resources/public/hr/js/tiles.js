@@ -178,14 +178,16 @@ function centerBall(config, gamepad) {
 //main game handling function
 function Tiles(config, info)
 {
-    this.canvas        = null;
-    this.effectsCanvas = null;
-    this.infoCanvas    = null;
-    this.core          = null;
-    this.base          = new GameBase(config);
-    this.status        = '';
-    this.shuffleCount  = 0;
-    this.isShuffling   = false;
+    this.canvas         = null;
+    this.effectsCanvas  = null;
+    this.infoCanvas     = null;
+    this.core           = null;
+    this.base           = new GameBase(config);
+    this.status         = 'new'; // will be one of new, ready, running, over, shuffling
+    this.shuffleCount   = 0;
+    this.isShuffling    = false;
+    this.isMobileDevice = false;
+    this.oMove          = null;
 
     if ('TilesConfig' != config.getName()) {
         throw new Error('Parameter config is not of type TilesConfig!');
@@ -221,6 +223,7 @@ function Tiles(config, info)
         if ( true == this.isShufflingNow() ) {
             throw new Error('Shuffling was already started!');
         }
+        this.setStatus('shuffling');
         this.isShuffling = true;
         this.shuffleCount = 0;
     };
@@ -229,6 +232,7 @@ function Tiles(config, info)
         if ( false == this.isShufflingNow() ) {
             throw new Error('Shuffling was already stopped!');
         }
+        this.setStatus('ready');
         this.isShuffling = false;
     };
 
@@ -261,7 +265,7 @@ function Tiles(config, info)
 
         this.core = new TilesCore( config, new Array(this.canvas, this.effectsCanvas, this.infoCanvas) );
         this.core.draw(this.canvas);
-        this.setStatus('ready');
+        this.setStatus('new');
     };
 
     //set to initial state
@@ -269,14 +273,12 @@ function Tiles(config, info)
 
         this.checkPrerequisites();
 
-        if ( this.isShufflingNow() ) {
+        if ( this.isShufflingNow()
+             || ( 'new' != this.getStatus() )
+           ) {
             return;
         }
-
         this.startShuffle();
-
-        //print big message
-        //this.messageDiv.innerHTML = 'Shuffling!';
 
         // put a faded layer on top
         this.core.whiteWash();
@@ -289,6 +291,134 @@ function Tiles(config, info)
         shuffler = setTimeout( function() { doShuffle(); }, 100 );
     };
 
+    //check game status
+    this.checkGame = function () {
+
+        var ret = true;
+        this.checkPrerequisites();
+
+        if ('ready' == this.getStatus()) {
+            startTimer();
+            this.setStatus('running');
+        }
+
+        //game is over
+        if (('running' == this.getStatus())
+            && (true == this.core.checkTilesPositions())
+        ) {
+            alert('TODO: game over');
+            ret = false;
+        }
+
+        return ret;
+    };
+
+// hier weiter
+
+    this.startMove = function( xpos, ypos) {
+
+        alert('start move ' + xpos + ' ' + ypos);
+    };
+
+    this.endMove = function( xpos, ypos) {
+
+        alert('end move ' + xpos + ' ' + ypos);
+    };
+
+    this.cancelMove = function( xpos, ypos) {
+
+        alert('cancel move ' + xpos + ' ' + ypos);
+    };
+
+    // select a field
+    this.handleMove = function( eventsource ) {
+
+        this.checkPrerequisites();
+
+        //check type of that event
+        var eventType = eventsource.type;
+
+        // catch events we don't want
+        // on ipod/phone we get touchstart, touchmove, touchend and immediately automatically a 'click'
+        // we want touchend instead of click, so we also block click in case we got a touchevent before
+        if ('touchstart' == eventType) {
+            this.isMobileDevice = true;
+        }
+
+        if (('click' == eventType)
+            && ( true == this.isMobileDevice )) {
+            eventsource.preventDefault();
+            return false;
+        }
+
+        if (('ready' != this.getStatus() )
+            && ('running' != this.getStatus() )) {
+            // prevent default behavior
+            eventsource.preventDefault();
+            return false;
+        }
+
+        document.getElementById('asdf').innerHTML += ('event ' + eventType + '<br>');
+
+        var res = this.checkGame();
+        if ( false ==  res ) {
+            // nothing to be done
+            return false;
+        }
+
+        //handle depending on eventtype
+
+        /*
+        var boundingRect = document.getElementById(config.getCanvasId()).getBoundingClientRect();
+        var offsetHeight = Math.ceil(boundingRect.top - config.getTopOffset());
+        this.core.selectBall(mousex, mousey - offsetHeight - config.getTopOffset());
+        */
+
+        var boundingRect = document.getElementById(config.getCanvasId()).getBoundingClientRect();
+        var offsetHeight = Math.ceil(boundingRect.top - config.getTopOffset());
+
+        switch (eventType) {
+
+            case 'click':
+                var mousex = eventsource.clientX;
+                var mousey = eventsource.clientY;
+                break;
+
+            case 'touchstart':
+                // prevent default behavior
+                eventsource.preventDefault();
+
+                //use this for the touchscreen, we are only interested in the first finger touching the screen
+                var mousex = eventsource.touches[0].pageX;
+                var mousey = eventsource.touches[0].pageY;
+                this.startMove(mousex, mousey - offsetHeight - config.getTopOffset());
+                break;
+
+            case 'touchmove':
+                // prevent scrolling
+                eventsource.preventDefault();
+                // keep track of position
+                this.oMove = new Pos();
+                this.oMove.setxPos(eventsource.targetTouches[0].pageX);
+                this.oMove.setYPos(eventsource.targetTouches[0].pageY);
+                break;
+
+            case 'touchend':
+                //if we have an end position end the move, if not cancel the move
+                if ( null != this.oMove ) {
+                    this.endMove( this.oMove.getXpos(), this.oMove.getYpos() - offsetHeight - config.getTopOffset());
+                } else {
+                    this.cancelMove();
+                }
+                this.oMove = null;
+                break;
+
+            default:
+                break;
+
+        }
+
+    };
 };
 
 //shuffle the tiles
@@ -537,6 +667,29 @@ function TilesCore(config, canvasses) {
 
 };
 
+//start timer
+function startTimer(){
+    timer = new TimeTracker('timerdiv');
+    timer.startTimer();
+    interval = setInterval( function() { timer.showDisplay(); }, 50 );
+}
+
+// stop timer
+function stopTimer(haltTimeTracker){
+
+    if ( typeof interval != 'undefined') {
+        window.clearInterval(interval);
+    }
+
+    if ( ( null != timer )
+        && haltTimeTracker
+    ) {
+        timer.stopTimer(true);
+        timer.showDisplay();
+        timer = null;
+    }
+};
+
 //page load
 $(window).load(
     function () {
@@ -558,12 +711,11 @@ $(window).load(
 );
 
 //attach events
-$( "#container" ).bind( "click ontouchstart", function(event) {
-    try { /*
-
-
-        //game.selectBall(event);
-        //game.checkGame(); */
+$( "#container" ).bind( "mousedown mouseup drag touchstart touchmove touchend", function(event) {
+    try {
+        if ( true != game.isShufflingNow() ) {
+            game.handleMove(event);
+        }
     } catch(err) {
         document.getElementById("errorinfo").innerHTML = err.message;
     }
@@ -571,17 +723,24 @@ $( "#container" ).bind( "click ontouchstart", function(event) {
 
 $( "#shuffle" ).bind( "click ontouchstart", function(event) {
     try {
-        game.shuffle();
-    } catch(err) {
+        if (( true != game.isShufflingNow() )
+            && ('running' != game.getStatus() )
+        ) {
+            game.shuffle();
+        }
+    } catch (err) {
         document.getElementById("errorinfo").innerHTML = err.message;
     }
 });
 
 $( "#reset" ).bind( "click ontouchstart", function(event) {
     try {
-        game = new Tiles(config, info);
-        game.createPad();
-    } catch(err) {
+        if ( true != game.isShufflingNow() ) {
+            stopTimer(true);
+            game = new Tiles(config, info);
+            game.createPad();
+        }
+    } catch (err) {
         document.getElementById("errorinfo").innerHTML = err.message;
     }
 });
