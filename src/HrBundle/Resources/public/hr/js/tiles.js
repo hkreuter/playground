@@ -5,6 +5,7 @@
 var game     = null;
 var config   = null;
 var shuffler = null;
+var info     = null;
 
 var interval  = null;
 var timer     = null;
@@ -140,6 +141,7 @@ function Pos(xcnt, ycnt) {
     };
 };
 
+//center ball color gradient
 function centerBall(config, gamepad) {
 
     if ('TilesConfig' != config.getName()) {
@@ -172,7 +174,6 @@ function centerBall(config, gamepad) {
 
     return ballGrad;
 };
-
 
 //main game handling function
 function Tiles(config, info)
@@ -263,7 +264,7 @@ function Tiles(config, info)
         this.setStatus('ready');
     };
 
-    //reset to initial state
+    //set to initial state
     this.shuffle = function() {
 
         this.checkPrerequisites();
@@ -290,7 +291,7 @@ function Tiles(config, info)
 
 };
 
-
+//shuffle the tiles
 function doShuffle() {
 
     if ( game.getShuffleCount() <= config.getShuffleMaxCount() ) {
@@ -299,13 +300,11 @@ function doShuffle() {
         shuffler = setTimeout( function() { doShuffle(); }, 100 );
     } else {
         clearTimeout(shuffler);
-        this.printInfo('');
         game.stopShuffle();
         game.core.clearEffects('effects');
         game.core.clearEffects('info');
     }
 };
-
 
 // tiles business model
 function TilesCore(config, canvasses) {
@@ -417,6 +416,7 @@ function TilesCore(config, canvasses) {
         this.effectspad.fillRect(xcoord, ycoord, width, height);
     };
 
+    //clear effects or info canvas
     this.clearEffects = function( name ) {
         var width  = this.width * config.getColumnCount() + 2 * config.getGridBorder();
         var height = this.height * config.getRowCount() + 2 * config.getGridBorder();
@@ -438,14 +438,16 @@ function TilesCore(config, canvasses) {
     //print am message on the info canvas
     this.printInfo = function( msg ){
 
-        var hmarge = Math.floor( (this.width - config.getFontSize() ) / 2);
-        var newdiv = document.createElement('div');
-        alert(hmarge);
-        this.infoPad.fillStyle = "#FFFFFF";
-        this.infoPad.margin    = hmarge + "px 30px";
-        this.infoPad.font      = "bold " + config.getFontSize() + "px Arial";
-        this.infoPad.fillText(msg, hmarge, 30);
+        var width    = this.width * config.getColumnCount() + 2 * config.getGridBorder();
+        var height   = this.height * config.getRowCount() + 2 * config.getGridBorder();
+        var maxWidth = width - 20;
+        var xAnchor  = width / 2;
+        var yAnchor  = height / 2 + config.getFontSize() / 4;
 
+        this.infopad.fillStyle = "#FFFFFF";
+        this.infopad.font      = "bold " + config.getFontSize() + "px Arial";
+        this.infopad.textAlign = "center";
+        this.infopad.fillText(msg, xAnchor, yAnchor, maxWidth);
     };
 
     // place switch filled tile with empty one
@@ -533,99 +535,13 @@ function TilesCore(config, canvasses) {
         }
     };
 
-    //randomly shuffle all tiles
-    //The empty tile is the lower right one when starting.
-    // We need to keep track where that one currently resides
-    //and randomly chose one of the neighboring tiles (not the diagonally adjacent ones) to be moved (max 4)
-    this.shuffleAllTiles = function(iterations)
-    {
-        this.shuffleCount++;
-
-        // choose coord (x/0 or y/1), choose sign _(+ or 1)
-        var iRandCoord = Math.floor( Math.random() * 2);
-        var iRandSign  = Math.floor( Math.random() * 2) * 2 - 1;
-
-        var iXPlus = 0;
-        var iYPlus = 0;
-        if ( 0 == iRandCoord) {
-            iXPlus = 1;
-        } else {
-            iYPlus = 1;
-        }
-
-        var iXPosFrom = (this.emptyTile.getXpos() + iRandSign*iXPlus);
-        var iYPosFrom = (this.emptyTile.getYpos() + iRandSign*iYPlus);
-
-        if (   ( 0 <= iXPosFrom )
-            && ( 0 <= iYPosFrom )
-            && ( iXPosFrom < config.getColumnCount())
-            && ( iYPosFrom < config.getRowCount())
-            &&  this.gameArea[iYPosFrom * config.getRowCount() + iXPosFrom]
-        ) {
-            // switch the tiles
-            this.switchTiles(iYPosFrom, iXPosFrom);
-        }
-
-        if ( this.shuffleCount <= iterations ) {
-            //setTimeout( this.shuffleAllTiles(iterations), 1000 );
-
-            setTimeout( this.shuffleAllTiles, 1000, iterations );
-        } else {
-            // shuffling completed
-            this.stopShuffle();
-
-            //this.isShuffling = false;
-            //blShuffleDone = true;
-            //this.messageDiv.innerHTML = '';
-            //this.fillTransCanvas( false );
-            //this.setStatus('ready');
-
-            alert(this.shuffleCount);
-            alert('buttons!');
-            // hide shuffle button, show reset button
-            //document.getElementById('shuffleButton').style.display = 'none';
-            // document.getElementById('resetButton').style.display = 'block';
-        }
-    };
-
-
-    //reset to initial state
-    function fullReset()
-    {
-        this.checkPrerequisites();
-
-        /*
-        if (    this.game && this.tilesCanvas && this.effectsCanvas && this.gamepad
-            && this.transCanvas && !blShuffling && blShuffleDone
-        ) {
-            blShuffleDone = false;
-            blGameDone    = false;
-
-            if ( null != oTimer ) {
-                oTimer.flashcount = 0;
-            }
-
-            document.getElementById('shuffleButton').style.display = 'block';
-            document.getElementById('resetButton').style.display = 'none';
-
-            this.game.clearAll();
-            this.game.reset();
-            this.game.drawInitial(this.gamepad);
-
-            currentState = 'new';
-            stopTimer( true );
-
-        } */
-    };
-
-
 };
 
 //page load
 $(window).load(
     function () {
         try {
-            var info   = new InfoHandler('runtimeinfo');
+            info   = new InfoHandler('runtimeinfo');
             config     = new TilesConfig(400, 400, 'container');
             game       = new Tiles(config, info);
             game.createPad();
@@ -653,7 +569,7 @@ $( "#container" ).bind( "click ontouchstart", function(event) {
     }
 });
 
-$( "#start" ).bind( "click ontouchstart", function(event) {
+$( "#shuffle" ).bind( "click ontouchstart", function(event) {
     try {
         game.shuffle();
     } catch(err) {
@@ -661,10 +577,10 @@ $( "#start" ).bind( "click ontouchstart", function(event) {
     }
 });
 
-$( "#stop" ).bind( "click ontouchstart", function(event) {
+$( "#reset" ).bind( "click ontouchstart", function(event) {
     try {
-        alert('stop');
-        //game.stop();
+        game = new Tiles(config, info);
+        game.createPad();
     } catch(err) {
         document.getElementById("errorinfo").innerHTML = err.message;
     }
