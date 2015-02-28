@@ -188,6 +188,9 @@ function Tiles(config, info)
     this.isShuffling    = false;
     this.isMobileDevice = false;
     this.oMove          = null;
+    this.startPos       = null;
+    this.endPos         = null;
+    this.selectedTile   = null;
 
     if ('TilesConfig' != config.getName()) {
         throw new Error('Parameter config is not of type TilesConfig!');
@@ -313,52 +316,21 @@ function Tiles(config, info)
         return ret;
     };
 
-// hier weiter
-
-    this.startMove = function( xpos, ypos) {
-
-        alert('start move ' + xpos + ' ' + ypos);
-    };
-
-    this.endMove = function( xpos, ypos) {
-
-        alert('end move ' + xpos + ' ' + ypos);
-    };
-
-    this.cancelMove = function( xpos, ypos) {
-
-        alert('cancel move ' + xpos + ' ' + ypos);
-    };
-
     // select a field
     this.handleMove = function( eventsource ) {
 
         this.checkPrerequisites();
 
-        //check type of that event
+        //get type of that event
         var eventType = eventsource.type;
 
-        // catch events we don't want
-        // on ipod/phone we get touchstart, touchmove, touchend and immediately automatically a 'click'
-        // we want touchend instead of click, so we also block click in case we got a touchevent before
-        if ('touchstart' == eventType) {
-            this.isMobileDevice = true;
-        }
-
-        if (('click' == eventType)
-            && ( true == this.isMobileDevice )) {
-            eventsource.preventDefault();
-            return false;
-        }
-
+        //nothing to be done
         if (('ready' != this.getStatus() )
             && ('running' != this.getStatus() )) {
             // prevent default behavior
             eventsource.preventDefault();
             return false;
         }
-
-        document.getElementById('asdf').innerHTML += ('event ' + eventType + '<br>');
 
         var res = this.checkGame();
         if ( false ==  res ) {
@@ -367,21 +339,37 @@ function Tiles(config, info)
         }
 
         //handle depending on eventtype
-
-        /*
-        var boundingRect = document.getElementById(config.getCanvasId()).getBoundingClientRect();
-        var offsetHeight = Math.ceil(boundingRect.top - config.getTopOffset());
-        this.core.selectBall(mousex, mousey - offsetHeight - config.getTopOffset());
-        */
-
         var boundingRect = document.getElementById(config.getCanvasId()).getBoundingClientRect();
         var offsetHeight = Math.ceil(boundingRect.top - config.getTopOffset());
 
         switch (eventType) {
 
-            case 'click':
+            case 'mousedown':
                 var mousex = eventsource.clientX;
                 var mousey = eventsource.clientY;
+                this.startPos = new Pos();
+                this.startPos.setXpos(mousex);
+                this.startPos.setYpos(mousey);
+                this.core.startMove(mousex, mousey - offsetHeight - config.getTopOffset());
+                break;
+
+            case 'mouseup':
+                var mousex = eventsource.clientX;
+                var mousey = eventsource.clientY;
+                this.endPos = new Pos();
+                this.endPos.setXpos(mousex);
+                this.endPos.setYpos(mousey);
+
+                if (   (this.startPos.getXpos() != this.endPos.getXpos())
+                    || (this.startPos.getYpos() != this.endPos.getYpos())
+                ) {
+                    this.core.endMove(mousex, mousey - offsetHeight - config.getTopOffset());
+                } else {
+                    this.core.cancelMove();
+                }
+                this.oMove = null;
+                this.startPos = null;
+                this.endPos   = null;
                 break;
 
             case 'touchstart':
@@ -391,7 +379,7 @@ function Tiles(config, info)
                 //use this for the touchscreen, we are only interested in the first finger touching the screen
                 var mousex = eventsource.touches[0].pageX;
                 var mousey = eventsource.touches[0].pageY;
-                this.startMove(mousex, mousey - offsetHeight - config.getTopOffset());
+                this.core.startMove(mousex, mousey - offsetHeight - config.getTopOffset());
                 break;
 
             case 'touchmove':
@@ -406,18 +394,16 @@ function Tiles(config, info)
             case 'touchend':
                 //if we have an end position end the move, if not cancel the move
                 if ( null != this.oMove ) {
-                    this.endMove( this.oMove.getXpos(), this.oMove.getYpos() - offsetHeight - config.getTopOffset());
+                    this.core.endMove( this.oMove.getXpos(), this.oMove.getYpos() - offsetHeight - config.getTopOffset());
                 } else {
-                    this.cancelMove();
+                    this.core.cancelMove();
                 }
                 this.oMove = null;
                 break;
 
             default:
                 break;
-
         }
-
     };
 };
 
@@ -665,6 +651,80 @@ function TilesCore(config, canvasses) {
         }
     };
 
+    //start the move
+    this.startMove = function( xpos, ypos) {
+
+        // check if we already have a selected tile ( an unfinished move)
+        if (null != this.selectedTile) {
+            return;
+        }
+
+        // determine which field is addressed
+        var xcnt = Math.floor((xpos - config.getGridBorder()) / this.width);
+        var ycnt = Math.floor((ypos - config.getGridBorder()) / this.height);
+
+        // the empty tile field cannot be selected
+        if (( xcnt == this.emptyTile.getXpos() )
+            && ( ycnt == this.emptyTile.getYpos() )
+        ) {
+            return false;
+        }
+
+        // set selected tile object
+        this.selectedTile = new Pos();
+        this.selectedTile.setXpos(xcnt);
+        this.selectedTile.setYpos(ycnt);
+
+        this.whiteWash(xcnt, ycnt);
+
+        // move completed?
+        return true;
+    };
+
+    // end the move
+    this.endMove = function( xpos, ypos) {
+
+        var gameover = false;
+
+        alert(xpos + ' ' + ypos);
+
+        // check if we already have a selected tile ( an unfinished move)
+        if (null != this.selectedTile) {
+            return;
+        }
+//hier weiter
+        //determine which field is addressed, this is the move's end position
+        var xcnt = Math.floor((xpos - config.getGridBorder()) / this.width);
+        var ycnt = Math.floor((ypos - config.getGridBorder()) / this.height);
+alert( xcnt + ' ' + ycnt);
+        //coordinate diff
+        var totaldiff = Math.abs(this.selectedTile.getXpos() - xcnt) +
+                        Math.abs(this.selectedTile.getYpos() - ycnt);
+
+        this.clearEffects('effects');
+
+        //Only move to empty tile field is possible
+        //Diagonal moves are forbidden so totaldiff MUST be 1
+        if ( !( ( xcnt == this.emptyTile.getXpos() )
+                && ( ycnt == this.emptyTile.getYpos() ) )
+             && (1 == totaldiff)
+        ) {
+            this.switchTiles(xcnt, ycnt);
+            this.countOfMoves++;
+            this.selectedTile = null;
+            gameover = this.checkTilesPositions();
+        }
+
+        return gameover;
+    };
+
+    // cancel a move
+    this.cancelMove = function()
+    {
+        this.clearEffects('effects');
+        this.selectedTile = null;
+        return true;
+    }
 };
 
 //start timer
@@ -711,7 +771,7 @@ $(window).load(
 );
 
 //attach events
-$( "#container" ).bind( "mousedown mouseup drag touchstart touchmove touchend", function(event) {
+$( "#container" ).bind( "mousedown mouseup touchstart touchmove touchend", function(event) {
     try {
         if ( true != game.isShufflingNow() ) {
             game.handleMove(event);
