@@ -107,10 +107,13 @@ function GameBase(config) {
     this.canvas = null;
 
     //append canvas element
-    this.getCanvas = function(canvasId) {
-
+    this.getCanvas = function(canvasId, zIndex) {
+alert(canvasId);
         if (typeof canvasId === "undefined") {
             canvasId = config.getCanvasId();
+        }
+        if (typeof zIndex === "undefined") {
+            zIndex = 0;
         }
 
         if ( null == this.canvas ) {
@@ -122,12 +125,14 @@ function GameBase(config) {
             }
 
             var container         = document.getElementById(config.getContainerId());
-            container.innerHTML   = '';
+            //container.innerHTML   = '';
 
-            this.canvas           = document.createElement(config.getCanvasId());
-            this.canvas.width     = config.getWidth();
-            this.canvas.height    = config.getHeight();
-            this.canvas.id        = config.getCanvasId();
+            this.canvas                = document.createElement(config.getCanvasId());
+           // this.canvas.style.position = 'absolute';
+            this.canvas.style.zIndex   = zIndex;
+            this.canvas.width          = config.getWidth();
+            this.canvas.height         = config.getHeight();
+            this.canvas.id             = config.getCanvasId();
             container.appendChild(this.canvas);
         }
         if ( ! this.canvas.getContext ) {

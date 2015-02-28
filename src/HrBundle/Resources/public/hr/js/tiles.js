@@ -2,7 +2,10 @@
  * Created by heike on 20/02/15.
  */
 
-var game      = null;
+var game     = null;
+var config   = null;
+var shuffler = null;
+
 var interval  = null;
 var timer     = null;
 
@@ -38,11 +41,11 @@ function TilesConfig( width, height, containerid ) {
     this.columnCount   = 6;
     this.rowCount      = this.columnCount;
 
-    this.shuffleMaxCount = 200;
+    this.shuffleMaxCount = 20; //200;
 
     this.deadColor    = '#C6C6C6';
     this.aliveColor   = '#9AB0E5';
-    this.neutralColor = '#446ED9';
+    this.neutralColor = 'FF0000'; //'#446ED9';
 
     // game colors
     this.outerColors = new Array();
@@ -103,6 +106,9 @@ function TilesConfig( width, height, containerid ) {
     this.getNeutralColor = function() {
         return this.neutralColor;
     };
+    this.getShuffleMaxCount = function() {
+        return this.shuffleMaxCount;
+    }
 };
 
 //position object
@@ -170,6 +176,8 @@ function Tiles(config, info)
     this.core          = null;
     this.base          = new GameBase(config);
     this.status        = '';
+    this.shuffleCount  = 0;
+    this.isShuffling   = false;
 
     if ('TilesConfig' != config.getName()) {
         throw new Error('Parameter config is not of type TilesConfig!');
@@ -185,9 +193,35 @@ function Tiles(config, info)
     this.getStatus = function(){
         return this.status;
     };
+    this.isShufflingNow = function() {
+        return this.isShuffling;
+    };
+    this.getShuffleCount = function() {
+        return this.shuffleCount;
+    };
 
+    //setters
     this.setStatus = function(status){
         this.status = status;
+    };
+
+    this.increaseShuffleCount = function() {
+        this.shuffleCount++;
+    };
+
+    this.startShuffle = function() {
+        if ( true == this.isShufflingNow() ) {
+            throw new Error('Shuffling was already started!');
+        }
+        this.isShuffling = true;
+        this.shuffleCount = 0;
+    };
+
+    this.stopShuffle = function() {
+        if ( false == this.isShufflingNow() ) {
+            throw new Error('Shuffling was already stopped!');
+        }
+        this.isShuffling = false;
     };
 
     //check mandatories
@@ -206,41 +240,65 @@ function Tiles(config, info)
     // fill the canvas
     this.createPad = function()
     {
-        this.canvas        = this.base.getCanvas();
-        this.effectsCanvas = this.base.getCanvas('effects');
+        this.canvas        = this.base.getCanvas(config.getCanvasId(), 1);
+        this.effectsCanvas = this.base.getCanvas('effects', 0);
+        this.transCanvas   = this.base.getCanvas('trans', 2);
 
         if (null != this.core) {
             throw new Error('Game core already instantiated!');
         }
 
-        this.core = new TilesCore( config, new Array(this.canvas, this.effectsCanvas) );
+        this.core = new TilesCore( config, new Array(this.canvas, this.effectsCanvas, this.transCanvas) );
 
         this.core.draw(this.canvas);
         this.setStatus('ready');
 
-        //this.core.switchTiles(4,5);
+        //this.shuffle();
+//asdf
+        this.core.whiteWash();
+        alert('hit');
 
-        // start shuffling process
-        this.core.startShuffle();
-        this.core.shuffleAllTiles(20);
-
-       /*
-        this.core.switchTiles(0,0);
-        alert( this.core.emptyTile.getXpos() + ' ' + this.core.emptyTile.getYpos() );
-
-        this.core.switchTiles(1,1);
-        alert( this.core.emptyTile.getXpos() + ' ' + this.core.emptyTile.getYpos() );
-
-        this.core.switchTiles(2,2);
-        alert( this.core.emptyTile.getXpos() + ' ' + this.core.emptyTile.getYpos() );
-
-        this.core.switchTiles(3,3);
-        alert( this.core.emptyTile.getXpos() + ' ' + this.core.emptyTile.getYpos() );
-        */
 
     };
 
-}
+    //reset to initial state
+    this.shuffle = function() {
+
+        this.checkPrerequisites();
+
+        if ( this.isShufflingNow() ) {
+            return;
+        }
+
+        this.startShuffle();
+
+        //print big message
+        //this.messageDiv.innerHTML = 'Shuffling!';
+
+        // put a faded layer on top
+        this.core.whiteWash();
+
+        //repeat shuffling
+        game = this;
+        shuffler = setTimeout( function() { doShuffle(); }, 100 );
+    };
+
+};
+
+
+function doShuffle() {
+
+    if ( game.getShuffleCount() <= config.getShuffleMaxCount() ) {
+        game.increaseShuffleCount();
+        game.core.shuffleOnce();
+        shuffler = setTimeout( function() { doShuffle(); }, 100 );
+    } else {
+        clearTimeout(shuffler);
+        game.stopShuffle();
+        game.core.clearEffects();
+    }
+};
+
 
 // tiles business model
 function TilesCore(config, canvasses) {
@@ -252,8 +310,8 @@ function TilesCore(config, canvasses) {
     this.shuffledTiles = new Array();
     this.emptyTile     = null;
 
-    this.shuffleCount  = 0;
-    this.isShuffling   = false;
+    //this.shuffleCount  = 0;
+    //this.isShuffling   = false;
     //this.isShufflingDone = false;
 
     this.width  = Math.floor( config.getWidth() / config.getColumnCount());
@@ -270,6 +328,8 @@ function TilesCore(config, canvasses) {
     this.getCountOfMoves = function() {
         return this.countOfMoves;
     };
+
+    /*
     this.isShufflingNow = function() {
         return this.isShuffling;
     };
@@ -286,7 +346,7 @@ function TilesCore(config, canvasses) {
             throw new Error('Shuffling was already stopped!');
         }
         this.isShuffling = false;
-    };
+    }; */
 
     // draw onto a 2d canvas
     this.draw = function () {
@@ -308,9 +368,12 @@ function TilesCore(config, canvasses) {
         }
 
         // we need one empty space
-        this.emptyTile = new Pos(config.getColumnCount() - 1, config.getRowCount() - 1);
-        this.drawField('empty', config.getColumnCount() - 1, config.getRowCount() - 1);
-        this.gameArea[(config.getColumnCount()-1)*config.getColumnCount() + (config.getRowCount()-1)] = false;
+        var emptyX = config.getColumnCount() - 1;
+        var emptyY = config.getRowCount() - 1;
+        this.emptyTile = new Pos(emptyX, emptyY);
+        this.drawField('empty', emptyX, emptyY);
+        this.gameArea[emptyX*config.getColumnCount() + emptyY] = false;
+
     };
 
     // draw an empty field
@@ -351,107 +414,84 @@ function TilesCore(config, canvasses) {
 
     };
 
-    // shadow on top of a field
-    this.paleoutField = function( xcounter, ycounter, blFade )
-    {
-        var xcoord = xcounter * this.width + config.getGridBorder();
-        var ycoord = ycounter * this.height + config.getGridBorder();
+    // fade part or all of effects canvas
+    this.whiteWash = function( xCnt, yCnt ) {
 
-        // clear effects canvas
-        this.effectspad.clearRect(0, 0, this.width, this.height);
+        // paint whitewash over the image to achieve a faded effect
+        this.effectspad.fillStyle = "rgba(255, 255, 255, 0.60)";
 
-        if (blFade) {
-            // paint whitewash over the image to achieve a faded effect
-            this.effectspad.fillStyle = "rgba(255, 255, 255, 0.43)";
-            this.effectspad.fillRect(xcoord,
-                ycoord,
-                this.width - config.getGridBorder(),
-                this.height - config.getGridBorder());
+        var xcoord = xCnt * this.width + config.getGridBorder();
+        var ycoord = yCnt * this.height + config.getGridBorder();
+        var width  = this.width - config.getGridBorder();
+        var height = this.height - config.getGridBorder();
+
+        if (    (typeof xCnt === "undefined" )
+             || (typeof yCnt === "undefined" )
+           ) {
+            xcoord = 0;
+            ycoord = 0;
+            width  = this.width * config.getColumnCount() + 2 * config.getGridBorder();
+            height = this.height * config.getRowCount() + 2 * config.getGridBorder();
         }
+
+        this.effectspad.fillRect(xcoord, ycoord, width, height);
     };
 
-    // place switch filled tile with empty one
-    this.switchTiles = function(xFrom, yFrom)
-    {
-        var xdiff = (this.emptyTile.getXpos() - xFrom);
-        var ydiff = (this.emptyTile.getYpos() - yFrom);
+    this.clearEffects = function() {
 
+
+        var width  = this.width * config.getColumnCount() + 2 * config.getGridBorder();
+        var height = this.height * config.getRowCount() + 2 * config.getGridBorder();
+
+        //this.effectspad.fillStyle = "rgba(255, 255, 255, 1)";
+        //this.gamepad.clearRect(0, 0, 50, 50); //width, height);
+        this.effectspad.clearRect(0, 0, 50, 50); //width, height);
+
+        //this.canvas.style.zIndex = 1;
+        //this.effectsCanvas.style.zIndex = 0;
+    };
+
+    /*
+     } else {
+     transpad.clearRect(0, 0, this.width, this.height);
+     }
+    */
+
+
+    // place switch filled tile with empty one
+    this.switchTiles = function (xFrom, yFrom) {
+
+        //keep track of tiles positions on gamepad
+        var target = this.emptyTile.getYpos() * config.getRowCount() + this.emptyTile.getXpos();
+        var source = yFrom * config.getRowCount() + xFrom;
+        var temp = this.shuffledTiles[target];
+        this.shuffledTiles[target] = this.shuffledTiles[source];
+        this.shuffledTiles[source] = temp;
+
+        var oPos = this.shuffledTiles[this.emptyTile.getYpos() * config.getRowCount() + this.emptyTile.getXpos()];
+        var xcoordTo = oPos.getXpos() * this.width + config.getGridBorder();
+        var ycoordTo = oPos.getYpos() * this.height + config.getGridBorder();
+
+        var xdiff = this.emptyTile.getXpos() - oPos.getXpos();
+        var ydiff = this.emptyTile.getYpos() - oPos.getYpos();
+
+        //paint
         this.gamepad.save();
         this.gamepad.fillStyle = this.ballGrad;
-        this.gamepad.translate( xdiff * this.width, ydiff * this.height );
+        this.gamepad.translate(xdiff * this.width, ydiff * this.height);
 
-        var xcoordTo = xFrom * this.width + config.getGridBorder();
-        var ycoordTo = yFrom * this.height + config.getGridBorder();
-
-        this.gamepad.fillRect( xcoordTo,
+        this.gamepad.fillRect(xcoordTo,
             ycoordTo,
             this.width - config.getGridBorder(),
             this.height - config.getGridBorder());
-
         this.gamepad.restore();
-        this.drawField( 'empty', xFrom, yFrom );
 
-
-        var target = this.emptyTile.getYpos() * config.getRowCount() + this.emptyTile.getXpos();
-        var source = yFrom * config.getRowCount() + xFrom;
-        var temp   = this.shuffledTiles[source];
-        this.shuffledTiles[target] = this.shuffledTiles[source];
-        this.shuffledTiles[source] = temp;
+        //this.drawEmptyField( gamepad, iXPosFrom, iYPosFrom );
+        this.drawField('empty', xFrom, yFrom);
 
         //keep track of empty tile
         this.emptyTile.setXpos(xFrom);
         this.emptyTile.setYpos(yFrom);
-
-
-
-      /*
-        //var xcoordTo = this.emptyTile.getXpos() * this.width + config.getGridBorder();
-        //var ycoordTo = this.emptyTile.getYpos() * this.height + config.getGridBorder();
-
-        var xdiff = (xFrom - this.emptyTile.getXpos());
-        var ydiff = (yFrom - this.emptyTile.getYpos());
-
-        alert( xdiff * this.width + ' ' + ydiff * this.height );
-
-        this.gamepad.fillStyle = this.ballGrad;
-        this.gamepad.translate( xdiff * this.width, ydiff * this.height );
-
-        //this.drawField('empty', config.getColumnCount() - 1, config.getRowCount() - 1);
-
-       */
-        /*
-        var oPos = this.shuffledTiles[yTo * config.getRowCount() + xTo];
-
-        //var xcoordTo = xTo * this.width + config.getGridBorder();
-        //var ycoordTo = yTo * this.height + config.getGridBorder();
-       // var xcoordFill = oPos.getXpos() * this.width + config.getGridBorder();
-       // var ycoordFill = oPos.getYpos() * this.height + config.getGridBorder();
-
-        var xcoordFill = oPos.getXpos() * this.width + config.getGridBorder();
-        var ycoordFill = oPos.getYpos() * this.height + config.getGridBorder();
-
-        var xdiff = 2; //(xTo - oPos.getXpos());
-        var ydiff = 2; //(yTo - oPos.getYpos());
-
-//alert( xcoordFill + ' ' + ycoordFill + ' ' + xdiff + ' ' + ydiff + ' ' + oPos.getXpos() + ' ' + oPos.getYpos());
-
-        alert( xTo + ' ' + yTo + ' ' + oPos.getXpos() + ' ' + oPos.getYpos());
-
-      //  this.gamepad.save();
-        //this.gamepad.translate( xdiff * this.width, ydiff * this.height );
-
-        this.gamepad.fillStyle = this.ballGrad;
-        this.gamepad.translate( 50, 50 );
-
-        this.gamepad.fillRect(30,30, 50, 50 );
-*/
-     /*   this.gamepad.fillStyle = config.getNeutralColor(); //this.ballGrad;
-        this.gamepad.fillRect(xcoordFill,
-            ycoordFill,
-            this.width - config.getGridBorder(),
-            this.height - config.getGridBorder); */
-
-       // this.gamepad.restore();
     };
 
     //function runs a check if all tiles are restored to their initial positions
@@ -470,6 +510,37 @@ function TilesCore(config, canvasses) {
             }
         }
         return blAllOrig;
+    };
+
+    //The empty tile is the lower right one when starting.
+    // We need to keep track where that one currently resides
+    //and randomly chose one of the neighboring tiles (not the diagonally adjacent ones) to be moved (max 4)
+    this.shuffleOnce = function()
+    {
+        // choose coord (x/0 or y/1), choose sign _(+ or 1)
+        var iRandCoord = Math.floor( Math.random() * 2);
+        var iRandSign  = Math.floor( Math.random() * 2) * 2 - 1;
+
+        var iXPlus = 0;
+        var iYPlus = 0;
+        if ( 0 == iRandCoord) {
+            iXPlus = 1;
+        } else {
+            iYPlus = 1;
+        }
+
+        var iXPosFrom = (this.emptyTile.getXpos() + iRandSign*iXPlus);
+        var iYPosFrom = (this.emptyTile.getYpos() + iRandSign*iYPlus);
+
+        if (   ( 0 <= iXPosFrom )
+            && ( 0 <= iYPosFrom )
+            && ( iXPosFrom < config.getColumnCount())
+            && ( iYPosFrom < config.getRowCount())
+            &&  this.gameArea[iYPosFrom * config.getRowCount() + iXPosFrom]
+        ) {
+            // switch the tiles
+            this.switchTiles(iYPosFrom, iXPosFrom);
+        }
     };
 
     //randomly shuffle all tiles
@@ -495,49 +566,20 @@ function TilesCore(config, canvasses) {
         var iXPosFrom = (this.emptyTile.getXpos() + iRandSign*iXPlus);
         var iYPosFrom = (this.emptyTile.getYpos() + iRandSign*iYPlus);
 
-        var asdf = ( iXPosFrom + ' ' + iYPosFrom + ' --- ' + this.emptyTile.getXpos() + ' ' + this.emptyTile.getYpos() );
-        document.getElementById('asdf').innerHTML += asdf + ' </br>';
-
         if (   ( 0 <= iXPosFrom )
             && ( 0 <= iYPosFrom )
             && ( iXPosFrom < config.getColumnCount())
             && ( iYPosFrom < config.getRowCount())
             &&  this.gameArea[iYPosFrom * config.getRowCount() + iXPosFrom]
         ) {
-            /*
-            var target = this.emptyTile.getYpos() * config.getRowCount() + this.emptyTile.getXpos();
-            var source = iYPosFrom * config.getRowCount() + iXPosFrom;
-            var temp   = this.shuffledTiles[source];
-            this.shuffledTiles[target] = this.shuffledTiles[source];
-            this.shuffledTiles[source] = temp;
-*/
-            // paint the shuffled tiles
+            // switch the tiles
             this.switchTiles(iYPosFrom, iXPosFrom);
-
-/*
-            //keep track of empty tile
-            this.emptyTile.setXpos(iXPosFrom);
-            this.emptyTile.setYpos(iYPosFrom);
-*/
-            //this.switchTiles(this.emptyTile.getXpos(), this.emptyTile.getYpos());
-
-            /*
-            // draw empty files over from tile position
-            this.draw( 'empty', iXPosFrom, iYPosFrom );
-            this.gameArea[source] = false;
-            this.gameArea[target] = true;
-            this.emptyTile.setXpos(iXPosFrom);
-            this.emptyTile.setYpos(iYPosFrom); */
         }
 
         if ( this.shuffleCount <= iterations ) {
+            //setTimeout( this.shuffleAllTiles(iterations), 1000 );
 
-            setTimeout( this.shuffleAllTiles(iterations), 10 );
-
-            //game = this;
-            //setTimeout( function() { game.runSimulation(); }, 10 );
-
-            //setTimeout( 'this.randomShuffleAllTiles(iterations)', 10 );
+            setTimeout( this.shuffleAllTiles, 1000, iterations );
         } else {
             // shuffling completed
             this.stopShuffle();
@@ -554,7 +596,37 @@ function TilesCore(config, canvasses) {
             //document.getElementById('shuffleButton').style.display = 'none';
             // document.getElementById('resetButton').style.display = 'block';
         }
-    }
+    };
+
+
+    //reset to initial state
+    function fullReset()
+    {
+        this.checkPrerequisites();
+
+        /*
+        if (    this.game && this.tilesCanvas && this.effectsCanvas && this.gamepad
+            && this.transCanvas && !blShuffling && blShuffleDone
+        ) {
+            blShuffleDone = false;
+            blGameDone    = false;
+
+            if ( null != oTimer ) {
+                oTimer.flashcount = 0;
+            }
+
+            document.getElementById('shuffleButton').style.display = 'block';
+            document.getElementById('resetButton').style.display = 'none';
+
+            this.game.clearAll();
+            this.game.reset();
+            this.game.drawInitial(this.gamepad);
+
+            currentState = 'new';
+            stopTimer( true );
+
+        } */
+    };
 
 
 };
@@ -564,7 +636,7 @@ $(window).load(
     function () {
         try {
             var info   = new InfoHandler('runtimeinfo');
-            var config = new TilesConfig(400, 400, 'container');
+            config     = new TilesConfig(400, 400, 'container');
             game       = new Tiles(config, info);
             game.createPad();
 
@@ -573,6 +645,9 @@ $(window).load(
         }
     }
 );
+
+
+$( "#container" ).position = 'absolute';
 
 
 //attach events
@@ -589,8 +664,7 @@ $( "#container" ).bind( "click ontouchstart", function(event) {
 
 $( "#start" ).bind( "click ontouchstart", function(event) {
     try {
-        alert('start');
-        //game.start();
+        game.shuffle();
     } catch(err) {
         document.getElementById("errorinfo").innerHTML = err.message;
     }
