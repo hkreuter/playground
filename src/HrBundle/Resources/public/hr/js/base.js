@@ -104,19 +104,25 @@ function TimeTracker(displayId) {
 
 function GameBase(config) {
 
-    this.canvas = null;
+    this.canvasses = null;
 
     //append canvas element
     this.getCanvas = function(canvasId, zIndex) {
-alert(canvasId);
+
+        var container = document.getElementById(config.getContainerId());
+
         if (typeof canvasId === "undefined") {
             canvasId = config.getCanvasId();
         }
         if (typeof zIndex === "undefined") {
             zIndex = 0;
         }
+        if ( null == this.canvasses ) {
+            this.canvasses = new Object();
+            container.innerHTML = '';
+        }
 
-        if ( null == this.canvas ) {
+        if ( typeof this.canvasses[canvasId] === "undefined" ) {
             if ( null == document.getElementById(config.getContainerId()) ) {
                 throw new Error( "Need element with id '" + config.getContainerId() + "' for canvas!" );
             }
@@ -124,20 +130,19 @@ alert(canvasId);
                 throw new Error('canvas already exists');
             }
 
-            var container         = document.getElementById(config.getContainerId());
-            //container.innerHTML   = '';
+            var canvas            = document.createElement('canvas');
+            canvas.style.position = 'absolute';
+            canvas.style.zIndex   = zIndex;
+            canvas.width          = config.getWidth();
+            canvas.height         = config.getHeight();
+            canvas.id             = canvasId;
+            container.appendChild(canvas);
 
-            this.canvas                = document.createElement(config.getCanvasId());
-           // this.canvas.style.position = 'absolute';
-            this.canvas.style.zIndex   = zIndex;
-            this.canvas.width          = config.getWidth();
-            this.canvas.height         = config.getHeight();
-            this.canvas.id             = config.getCanvasId();
-            container.appendChild(this.canvas);
+            this.canvasses[canvasId] = canvas;
         }
-        if ( ! this.canvas.getContext ) {
-            throw new Error('Missing canvas context.');
+        if ( ! this.canvasses[canvasId].getContext ) {
+            throw new Error('Missing canvas context for ' + canvasId + '!');
         }
-        return this.canvas;
+        return this.canvasses[canvasId];
     };
 }
