@@ -555,6 +555,11 @@ $(window).load(
             game       = new Solitaire(config, info);
             game.createPad();
 
+            $("#controls").css({
+                position: "absolute",
+                top: ( $("#canvas").height() +  $("#index_main_top").height() )+ "px"
+            }).show();
+
         } catch (err) {
             document.getElementById("errorinfo").innerHTML = err.message;
         }

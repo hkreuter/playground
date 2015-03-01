@@ -44,7 +44,7 @@ function TilesConfig( width, height, containerid ) {
     this.columnCount   = 6;
     this.rowCount      = this.columnCount;
 
-    this.shuffleMaxCount = 2; //200;
+    this.shuffleMaxCount = 200;
 
     this.deadColor    = '#C6C6C6';
     this.aliveColor   = '#9AB0E5';
@@ -785,23 +785,6 @@ function stopTimer(haltTimeTracker){
     }
 };
 
-/*
-//print am message on the info canvas
-printInfo = function( msg ){
-//hier weiter: messages array und blinken
-
-    var width    = this.width * config.getColumnCount() + 2 * config.getGridBorder();
-    var height   = this.height * config.getRowCount() + 2 * config.getGridBorder();
-    var maxWidth = width - 20;
-    var xAnchor  = width / 2;
-    var yAnchor  = height / 2 + config.getFontSize() / 4;
-
-    this.infopad.fillStyle = "#FFFFFF";
-    this.infopad.font      = "bold " + config.getFontSize() + "px Arial";
-    this.infopad.textAlign = "center";
-    this.infopad.fillText(msg, xAnchor, yAnchor, maxWidth);
-};
-*/
 //page load
 $(window).load(
     function () {

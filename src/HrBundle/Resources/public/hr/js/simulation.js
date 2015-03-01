@@ -5,6 +5,7 @@
 * For now: all rights reserved.
  */
 
+//TODO: use info canvas to display statistics
 var game   = null;
 
 // configuration
@@ -615,9 +616,15 @@ $( window ).load(
         if ( "Tests for Conway's Game of Life" != document.title ) {
             try {
                 info   = new InfoHandler( 'runtimeinfo' );
-                config = new GolConfig( 570, 570, 'container' );
+                config = new GolConfig( 500, 500, 'container' );
                 game   = new GameOfLife( config, info );
                 game.createPad();
+
+                $("#controls").css({
+                    position: "absolute",
+                    top: ( $("#canvas").height() +  $("#index_main_top").height() )+ "px"
+                }).show();
+
             } catch(err) {
                 document.getElementById("errorinfo").innerHTML = err.message;
             }
