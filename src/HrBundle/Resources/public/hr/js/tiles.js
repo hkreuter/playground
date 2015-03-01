@@ -2,11 +2,13 @@
  * Created by heike on 20/02/15.
  */
 
-var game     = null;
-var config   = null;
-var shuffler = null;
-var info     = null;
+//TODO: nicely sliding tiles ;), means: use draggable elements
 
+var game      = null;
+var config    = null;
+var shuffler  = null;
+var messager  = null;
+var info      = null;
 var interval  = null;
 var timer     = null;
 
@@ -42,7 +44,7 @@ function TilesConfig( width, height, containerid ) {
     this.columnCount   = 6;
     this.rowCount      = this.columnCount;
 
-    this.shuffleMaxCount = 20; //200;
+    this.shuffleMaxCount = 2; //200;
 
     this.deadColor    = '#C6C6C6';
     this.aliveColor   = '#9AB0E5';
@@ -309,7 +311,6 @@ function Tiles(config, info)
         if (('running' == this.getStatus())
             && (true == this.core.checkTilesPositions())
         ) {
-            alert('TODO: game over');
             ret = false;
         }
 
@@ -404,16 +405,55 @@ function Tiles(config, info)
             default:
                 break;
         }
+
+        if ( this.core.isGameOver() ) {
+            this.handleGameOver();
+        }
+    };
+
+    // show info that game is done
+    this.handleGameOver = function()
+    {
+        this.setStatus('over');
+        this.core.whiteWash();
+        stopTimer();
+
+        var messages = new Array();
+        messages[0] = 'Game Over! ';
+        messages[1] = 'Moves: ' +  this.core.getCountOfMoves()
+        messages[2] = 'Time: ' + timer.getDisplay();
+
+        game = this;
+        messager = setTimeout( doInfo, 100, messages, 0 );
     };
 };
 
+//rotate messages on info canvas
+function doInfo( messages, counter ) {
+
+    if ( messages.length <= counter) {
+        counter = 0;
+    }
+    game.core.clearEffects('info');
+    game.core.printInfo(messages[counter]);
+    counter++;
+    messager = setTimeout( doInfo, 1000, messages, counter );
+}
+
+//stop info loop
+function stopInfo() {
+    if ( typeof messager != 'undefined') {
+        window.clearTimeout(messager);
+    }
+    game.core.clearEffects('info');
+}
+
 //shuffle the tiles
 function doShuffle() {
-
-    if ( game.getShuffleCount() <= config.getShuffleMaxCount() ) {
+    if ( game.getShuffleCount() < config.getShuffleMaxCount() ) {
         game.increaseShuffleCount();
         game.core.shuffleOnce();
-        shuffler = setTimeout( function() { doShuffle(); }, 100 );
+        shuffler = setTimeout( function() { doShuffle(); }, 500 );
     } else {
         clearTimeout(shuffler);
         game.stopShuffle();
@@ -432,6 +472,7 @@ function TilesCore(config, canvasses) {
     this.gameArea      = new Array();
     this.shuffledTiles = new Array();
     this.emptyTile     = null;
+    this.gameOver      = false;
 
     this.width  = Math.floor( config.getWidth() / config.getColumnCount());
     this.height = Math.floor( config.getHeight() / config.getRowCount());
@@ -441,6 +482,9 @@ function TilesCore(config, canvasses) {
    //getters
     this.getCountOfMoves = function() {
         return this.countOfMoves;
+    };
+    this.isGameOver = function() {
+        return this.gameOver;
     };
 
     // draw onto a 2d canvas
@@ -667,7 +711,7 @@ function TilesCore(config, canvasses) {
         if (( xcnt == this.emptyTile.getXpos() )
             && ( ycnt == this.emptyTile.getYpos() )
         ) {
-            return false;
+            return;
         }
 
         // set selected tile object
@@ -676,46 +720,37 @@ function TilesCore(config, canvasses) {
         this.selectedTile.setYpos(ycnt);
 
         this.whiteWash(xcnt, ycnt);
-
-        // move completed?
-        return true;
     };
 
     // end the move
     this.endMove = function( xpos, ypos) {
 
-        var gameover = false;
-
-        alert(xpos + ' ' + ypos);
-
-        // check if we already have a selected tile ( an unfinished move)
-        if (null != this.selectedTile) {
+        //we need a selected tile
+        if (null == this.selectedTile) {
             return;
         }
-//hier weiter
+
         //determine which field is addressed, this is the move's end position
         var xcnt = Math.floor((xpos - config.getGridBorder()) / this.width);
         var ycnt = Math.floor((ypos - config.getGridBorder()) / this.height);
-alert( xcnt + ' ' + ycnt);
+
         //coordinate diff
         var totaldiff = Math.abs(this.selectedTile.getXpos() - xcnt) +
                         Math.abs(this.selectedTile.getYpos() - ycnt);
 
-        this.clearEffects('effects');
-
         //Only move to empty tile field is possible
         //Diagonal moves are forbidden so totaldiff MUST be 1
-        if ( !( ( xcnt == this.emptyTile.getXpos() )
-                && ( ycnt == this.emptyTile.getYpos() ) )
+        if ( ( xcnt == this.emptyTile.getXpos() )
+             && ( ycnt == this.emptyTile.getYpos() )
              && (1 == totaldiff)
         ) {
-            this.switchTiles(xcnt, ycnt);
+            this.switchTiles(this.selectedTile.getXpos(), this.selectedTile.getYpos());
+            this.clearEffects('effects');
             this.countOfMoves++;
             this.selectedTile = null;
-            gameover = this.checkTilesPositions();
+            this.gameOver = this.checkTilesPositions();
         }
-
-        return gameover;
+        this.clearEffects('effects');
     };
 
     // cancel a move
@@ -723,8 +758,8 @@ alert( xcnt + ' ' + ycnt);
     {
         this.clearEffects('effects');
         this.selectedTile = null;
-        return true;
-    }
+    };
+
 };
 
 //start timer
@@ -750,6 +785,23 @@ function stopTimer(haltTimeTracker){
     }
 };
 
+/*
+//print am message on the info canvas
+printInfo = function( msg ){
+//hier weiter: messages array und blinken
+
+    var width    = this.width * config.getColumnCount() + 2 * config.getGridBorder();
+    var height   = this.height * config.getRowCount() + 2 * config.getGridBorder();
+    var maxWidth = width - 20;
+    var xAnchor  = width / 2;
+    var yAnchor  = height / 2 + config.getFontSize() / 4;
+
+    this.infopad.fillStyle = "#FFFFFF";
+    this.infopad.font      = "bold " + config.getFontSize() + "px Arial";
+    this.infopad.textAlign = "center";
+    this.infopad.fillText(msg, xAnchor, yAnchor, maxWidth);
+};
+*/
 //page load
 $(window).load(
     function () {
@@ -797,6 +849,7 @@ $( "#reset" ).bind( "click ontouchstart", function(event) {
     try {
         if ( true != game.isShufflingNow() ) {
             stopTimer(true);
+            stopInfo();
             game = new Tiles(config, info);
             game.createPad();
         }
