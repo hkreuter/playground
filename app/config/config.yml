@@ -89,6 +89,26 @@ assetic:
             inputs:
                - '@HrBundle/Resources/public/hr/images/favicon_php.ico'
             output: favicon.ico
+        pic_game_of_life:
+            inputs:
+               - '@HrBundle/Resources/public/hr/images/indexpics/game_of_life.jpg'
+            output: pic_simulation.jpg
+        pic_solitaire:
+            inputs:
+               - '@HrBundle/Resources/public/hr/images/indexpics/solitaire.jpg'
+            output: pic_solitaire.jpg
+        pic_tiles:
+            inputs:
+               - '@HrBundle/Resources/public/hr/images/indexpics/tiles.jpg'
+            output: pic_tiles.jpg
+        pic_memory:
+            inputs:
+               - '@HrBundle/Resources/public/hr/images/indexpics/memory.jpg'
+            output: pic_memory.jpg
+        pic_gems:
+            inputs:
+               - '@HrBundle/Resources/public/hr/images/indexpics/gems.jpg'
+            output: pic_gems.jpg
 
 # Doctrine Configuration
 doctrine:
