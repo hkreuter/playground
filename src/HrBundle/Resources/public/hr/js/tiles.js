@@ -293,7 +293,7 @@ function Tiles(config, info)
 
         //repeat shuffling
         game = this;
-        shuffler = setTimeout( function() { doShuffle(); }, 100 );
+        shuffler = setTimeout( function() { doShuffle(); }, 10 );
     };
 
     //check game status
@@ -453,7 +453,7 @@ function doShuffle() {
     if ( game.getShuffleCount() < config.getShuffleMaxCount() ) {
         game.increaseShuffleCount();
         game.core.shuffleOnce();
-        shuffler = setTimeout( function() { doShuffle(); }, 500 );
+        shuffler = setTimeout( function() { doShuffle(); }, 10 );
     } else {
         clearTimeout(shuffler);
         game.stopShuffle();
@@ -691,7 +691,7 @@ function TilesCore(config, canvasses) {
             &&  this.gameArea[iYPosFrom * config.getRowCount() + iXPosFrom]
         ) {
             // switch the tiles
-            this.switchTiles(iYPosFrom, iXPosFrom);
+            this.switchTiles(iXPosFrom, iYPosFrom);
         }
     };
 
