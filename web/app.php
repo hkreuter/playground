@@ -17,7 +17,7 @@ Debug::enable();
 
 # load kernel
 //$kernel = new AppKernel( "dev", true );
-$kernel = new AppKernel( "dev", true );
+$kernel = new AppKernel( "prod", true );
 $kernel->loadClassCache();
 
 # request->handle->response is all we do ;)

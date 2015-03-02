@@ -786,13 +786,18 @@ function stopTimer(haltTimeTracker){
 };
 
 //page load
-$(window).load(
+$(window).ready(
     function () {
         try {
             info   = new InfoHandler('runtimeinfo');
-            config     = new TilesConfig(400, 400, 'container');
-            game       = new Tiles(config, info);
+            config = new TilesConfig(400, 400, 'container');
+            game   = new Tiles(config, info);
             game.createPad();
+
+            $("#controls").css({
+                position: "absolute",
+                top: ( $("#canvas").height() +  $("#index_main_top").height() )+ "px"
+            }).show();
 
             $("#controls").css({
                 position: "absolute",

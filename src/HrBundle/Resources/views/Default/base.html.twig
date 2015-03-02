@@ -9,16 +9,18 @@
             <title>{% block title %}blogaboutwhatever.com's playground{% endblock %}</title>
 
             {% block stylesheets %}{% endblock %}
-            {% block link %}<link rel="icon" type="image/x-icon" href={{ asset('favicon.ico') }} />{% endblock %}
+            {% block link %}<link rel="icon" type="image/x-icon" href={{ asset('images/favicon.ico') }} />{% endblock %}
         {% endblock %}
     </head>
     <body>
-       {% block body %}
-           {% block body_header %}{% endblock %}
-           {% block body_main %}{% endblock %}
-           {% block body_footer %}{% endblock %}
-       {% endblock %}
-       {% block javascripts %}{% endblock %}
+       <div data-role="page" id="page_content">
+           {% block body %}
+               {% block body_header %}{% endblock %}
+               {% block body_main %}{% endblock %}
+               {% block body_footer %}{% endblock %}
+           {% endblock %}
+           {% block javascripts %}{% endblock %}
+       </div>
     </body>
 
 </html>

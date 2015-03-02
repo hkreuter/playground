@@ -608,9 +608,7 @@ function InfoHandler( infodivname ) {
     };
 }
 
-
-$( window ).load(
-
+$(window).ready(
     function() {
 
         if ( "Tests for Conway's Game of Life" != document.title ) {

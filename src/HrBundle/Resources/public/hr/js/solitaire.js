@@ -547,7 +547,7 @@ function stopTimer(haltTimeTracker){
 };
 
 //page load
-$(window).load(
+$(window).ready(
     function () {
         try {
             var info   = new InfoHandler('runtimeinfo');
