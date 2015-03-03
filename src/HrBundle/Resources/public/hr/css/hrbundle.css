@@ -1,6 +1,6 @@
 /* index styles  - index pics are of size 71x71 */
 .mainindex_top { background: rgba(92, 138, 140, 0.63); color: #FFFFFF; height: 40px; padding: 5px 5px;
-    font-size:16px; font-weight:bold; }
+    font-size:16px; font-family: Verdana; }
 
 .mainindex { background: rgba(114, 170, 172, 0.58); color: #666666; min-height: 420px; padding: 20px 10px; text-align: center;
 }
@@ -12,9 +12,9 @@
 .mode  {background: #C6C6C6; color: #666666; }
 
 /* siminfo styles */
-.siminfo{text-align: center; width: 320px; top:0px;left:0px;font-size: 10px}
+.siminfo{text-align: center; top:0px;left:0px;font-size: 10px}
 .siminfo > table{text-align: left; margin: 0; padding: 0;}
 .siminfo.moreinfo {font-size:8px; color: #EF0000}
 
-
+.mysize{ max-width: 400px;}
 .pos{position: absolute;}

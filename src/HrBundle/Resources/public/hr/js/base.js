@@ -101,7 +101,13 @@ function TimeTracker(displayId) {
     };
 };
 
+//error handling
+function handleError(err) {
+    //document.getElementById("errorinfo").innerHTML = err.message;
+    console.log(err.message);
+};
 
+//game base functionality
 function GameBase(config) {
 
     this.canvasses = null;

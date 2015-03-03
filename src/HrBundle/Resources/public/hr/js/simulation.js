@@ -45,6 +45,9 @@ function GolConfig( width, height, containerid )
     this.canvasWidth  = width - 2*this.leftOffset;
     this.canvasHeight = height - this.topOffset;
 
+    //fontsize for infoCanvas
+    this.fontSize = 30;
+
     // getters
     this.getName = function() {
         return 'GolConfig';
@@ -76,24 +79,9 @@ function GolConfig( width, height, containerid )
     this.getTopOffset = function() {
         return this.topOffset;
     };
-
-    /*
-    this.getHorizontalWidth = function() {
-        return 35 * this.gridSize + 1;
+    this.getFontSize = function(){
+        return this.fontSize;
     };
-    this.getHorizontalHeight = function() {
-        return 15 * this.gridSize + 1;
-    };
-    this.getVerticalWidth = function() {
-        return 23 * this.gridSize + 1;
-    };
-    this.getVerticalHeight = function() {
-        var height = 21 * this.gridSize + 1;
-        if ( window.navigator.standalone ) {
-            height = 28 * this.gridSize + 1;
-        }
-        return height;
-    }; */
 
     //calculate number of columns canvas will have
     this.getColumnCnt = function () {
@@ -177,28 +165,7 @@ function GameOfLife( config, infoHandler ) {
     this.getTimer = function() {
         return this.timer;
     };
-/*
-    // init canvas
-    this.init = function()
-    {
-        window.scrollTo(0,1);
-        if (  (90 == window.orientation)  || (-90 == window.orientation) ) {
-            if (    (null == this.lastOrientation)
-                || ('vertical' == this.lastOrientation) ) {
-                this.createPad(config.getHorizontalWidth(), config.getHorizontalHeight());
-            }
-            this.lastOrientation = 'horizontal';
-        } else {
-            if (    (null == this.lastOrientation)
-                || ( 'horizontal' == this.lastOrientation)
-            ) {
-                this.createPad(config.getVerticalWidth(), config.getVerticalHeight());
-            }
-            this.lastOrientation = 'vertical';
-        }
-        window.scrollTo(0,1);
-    };
-*/
+
     // fill the canvas
     this.createPad = function()
     {
@@ -363,6 +330,23 @@ function GameOfLife( config, infoHandler ) {
                       'Iterations: ' + oStats.iterationcount;
         alert(message);
     };
+
+    //print am message on the info canvas
+    this.printInfo = function( msg ){
+
+        var width    = this.width * config.getColumnCount() + 2 * config.getGridBorder();
+        var height   = this.height * config.getRowCount() + 2 * config.getGridBorder();
+        var maxWidth = width - 20;
+        var xAnchor  = width / 2;
+        var yAnchor  = height / 2 + config.getFontSize() / 4;
+
+        this.infopad.fillStyle = "#FFFFFF";
+        this.infopad.font      = "bold " + config.getFontSize() + "px Arial";
+        this.infopad.textAlign = "center";
+        this.infopad.fillText(msg, xAnchor, yAnchor, maxWidth);
+    };
+
+
 }
 
 // main CONWAYS simulation function
@@ -606,7 +590,7 @@ function InfoHandler( infodivname ) {
     this.getInfoDivId = function() {
         return this.infodiv.id;
     };
-}
+};
 
 $(window).ready(
     function() {
@@ -614,17 +598,18 @@ $(window).ready(
         if ( "Tests for Conway's Game of Life" != document.title ) {
             try {
                 info   = new InfoHandler( 'runtimeinfo' );
-                config = new GolConfig( 500, 500, 'container' );
+                config = new GolConfig( 400, 400, 'container' );
                 game   = new GameOfLife( config, info );
                 game.createPad();
 
+                /*
                 $("#controls").css({
                     position: "absolute",
                     top: ( $("#canvas").height() +  $("#index_main_top").height() )+ "px"
                 }).show();
-
+                */
             } catch(err) {
-                document.getElementById("errorinfo").innerHTML = err.message;
+                handleError(err);
             }
         }
     }
@@ -634,7 +619,7 @@ $( "#container" ).bind( "click ontouchstart", function(event) {
     try {
         game.setCell(event);
     } catch(err) {
-        document.getElementById("errorinfo").innerHTML = err.message;
+        handleError(err);
     }
 });
 
@@ -642,7 +627,7 @@ $( "#start" ).bind( "click ontouchstart", function(event) {
     try {
         game.simulationStart();
     } catch(err) {
-        document.getElementById("errorinfo").innerHTML = err.message;
+        handleError(err);
     }
 });
 
@@ -650,7 +635,7 @@ $( "#stop" ).bind( "click ontouchstart", function(event) {
     try {
         game.simulationStop();
     } catch(err) {
-        document.getElementById("errorinfo").innerHTML = err.message;
+        handleError(err);
     }
 });
 
@@ -658,7 +643,7 @@ $( "#reset" ).bind( "click ontouchstart", function(event) {
     try {
         game.simulationReset();
     } catch(err) {
-        document.getElementById("errorinfo").innerHTML = err.message;
+        handleError(err);
     }
 });
 
@@ -666,7 +651,7 @@ $( "#clean" ).bind( "click ontouchstart", function(event) {
     try {
         game.simulationClean(true);
     } catch(err) {
-        document.getElementById("errorinfo").innerHTML = err.message;
+        handleError(err);
     }
 });
 
@@ -674,7 +659,7 @@ $( "#mode" ).bind( "click ontouchstart", function(event) {
     try {
         config.switchMode();
     } catch(err) {
-        document.getElementById("errorinfo").innerHTML = err.message;
+        handleError(err);
     }
 });
 
@@ -682,6 +667,6 @@ $( "#info" ).bind( "click ontouchstart", function(event) {
     try {
         game.showStatistics();
     } catch(err) {
-        document.getElementById("errorinfo").innerHTML = err.message;
+        handleError(err);
     }
 });

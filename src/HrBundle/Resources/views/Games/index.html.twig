@@ -13,15 +13,19 @@
 {% endblock %}
 
 {% block body_header %}
-    <div id="index_main_top" class="mainindex_top" >
-        <table>
+    <div id="index_main_top" class="mainindex_top">
+        <table width="100%">
             <colgroup>
-                <col width="30%" />
-                <col width="20%" />
+                <col width="29%" />
+                <col width="1%" />
+                <col width="19%" />
+                <col width="1%" />
                 <col width="50%" />
             </colgroup>
             <tr>
                 <td><img align="center" src={{ asset('images/favicon.ico') }} /></td>
+                <td>&nbsp;</td>
+                <td>&nbsp;{% block header_details %}{% endblock %}</td>
                 <td>&nbsp;</td>
                 <td><i>blogaboutwhatever.com's playground</i></td>
             </tr>
