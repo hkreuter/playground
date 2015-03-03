@@ -102,9 +102,21 @@ function TimeTracker(displayId) {
 };
 
 //error handling
-function handleError(err) {
-    //document.getElementById("errorinfo").innerHTML = err.message;
-    console.log(err.message);
+function ErrorHandler() {
+
+    this.getName = function() {
+        return 'ErrorHandler';
+    };
+
+    // log error message to console
+    this.consoleLog = function(err) {
+        console.log(err.message);
+    };
+
+    //display message on screen
+    this.toDiv = function(divname) {
+        document.getElementById(divname).innerHTML = err.message;
+    };
 };
 
 //game base functionality

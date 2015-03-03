@@ -6,7 +6,8 @@
  */
 
 //TODO: use info canvas to display statistics
-var game   = null;
+var game       = null;
+var errHandler = null;
 
 // configuration
 // parameters: - width       width available for game area
@@ -110,13 +111,15 @@ function GolConfig( width, height, containerid )
 }
 
 // game handler
-function GameOfLife( config, infoHandler ) {
+function GameOfLife(config) {
 
-    this.canvas          = null;
-    this.simulation      = null;
-    this.lastOrientation = null;
-    this.status          = null;
-    this.timer           = 0;
+    this.canvas        = null;
+    this.effectsCanvas = null;
+    this.infoCanvas    = null;
+    this.core          = null;
+    this.base          = new GameBase(config);
+    this.status        = null;
+    this.timer         = 0;
 
     this.getName = function() {
         return 'GameOfLife';
@@ -125,38 +128,9 @@ function GameOfLife( config, infoHandler ) {
     if ('GolConfig' != config.getName()) {
         throw new Error('Parameter config is not of type GolConfig!');
     }
-    if ('InfoHandler' != infoHandler.getName()) {
-        throw new Error('Parameter infoHandler is not of type infoHandler!');
-    }
 
     this.getStatus = function() {
         return this.status;
-    };
-
-    //append canvas element
-    this.getCanvas = function() {
-
-        if ( null == this.canvas ) {
-            if ( null == document.getElementById(config.getContainerId()) ) {
-                throw new Error( "Need element with id '" + config.getContainerId() + "' for canvas!" );
-            }
-            if ( null != document.getElementById(config.getCanvasId())) {
-                throw new Error('canvas already exists');
-            }
-
-            var container         = document.getElementById(config.getContainerId());
-            container.innerHTML   = '';
-
-            this.canvas           = document.createElement(config.getCanvasId());
-            this.canvas.width     = config.getWidth();
-            this.canvas.height    = config.getHeight();
-            this.canvas.id        = config.getCanvasId();
-            container.appendChild(this.canvas);
-        }
-        if ( ! this.canvas.getContext ) {
-            throw new Error('Missing canvas context.');
-        }
-        return this.canvas;
     };
 
     this.setTimer = function() {
@@ -169,25 +143,27 @@ function GameOfLife( config, infoHandler ) {
     // fill the canvas
     this.createPad = function()
     {
-        var canvas = this.getCanvas();
+        this.canvas        = this.base.getCanvas(config.getCanvasId(), 0);
+        this.effectsCanvas = this.base.getCanvas('effects', 1);
+        this.infoCanvas    = this.base.getCanvas('infocan', 2);
 
-        if (null != this.simulation) {
-            throw new Error('Simulation already instantiated!');
+        if (null != this.core) {
+            throw new Error('Game core already instantiated!');
         }
 
-        this.simulation = new ConwaysSimulation( config, this.canvas );
-        this.simulation.draw(canvas);
+        this.core = new ConwaysSimulation( config );
+        this.core.draw(this.canvas);
         this.status='ready';
-        infoHandler.showInfo('ready');
+        this.printInfo('ready', this.infoCanvas);
     };
 
     // kill all the cells
     this.simulationClean = function() {
-        if (null == this.simulation) {
+        if (null == this.core) {
             throw new Error('simulation object missing!');
         }
-        this.simulation.clean();
-        this.simulation.draw(canvas);
+        this.core.clean();
+        this.core.draw(this.canvas);
     };
 
     //check mandatories
@@ -195,11 +171,11 @@ function GameOfLife( config, infoHandler ) {
         if (null == this.canvas) {
             throw new Error('No canvas yet!');
         }
-        if (null == this.canvas.getContext) {
-            throw new Error('Canvas context is missing!');
+        if (null == this.infoCanvas) {
+            throw new Error('No infoCanvas yet!');
         }
-        if (null == this.simulation) {
-            throw new Error('Simulation object missing!');
+        if (null == this.core) {
+            throw new Error('Core object missing!');
         }
     };
 
@@ -219,18 +195,18 @@ function GameOfLife( config, infoHandler ) {
     this.runSimulation = function()
     {
         this.checkPrerequisites();
-        var blNextStep = this.simulation.nextStep();
+        var blNextStep = this.core.nextStep();
 
         // as long as we have a change in state between current and next step the simulation runs
         if ( blNextStep ) {
-            this.simulation.draw(this.canvas);
+            this.core.draw(this.canvas);
             this.status = 'running';
-            infoHandler.showInfo('running');
+            this.printInfo('running');
 
         } else {
             this.stopTimer();
             this.status = 'ended';
-            infoHandler.showInfo('ended');
+            this.printInfo('ended');
         }
     };
 
@@ -239,7 +215,7 @@ function GameOfLife( config, infoHandler ) {
     {
         this.stopTimer();
         this.status = 'stopped';
-        infoHandler.showInfo('stopped');
+        this.printInfo('stopped');
     };
 
     // do a reset, only if simulation is not running
@@ -248,9 +224,9 @@ function GameOfLife( config, infoHandler ) {
         this.checkPrerequisites();
 
         if ( 0 == this.timer ) {
-            this.simulation.reset();
-            this.simulation.draw(this.canvas);
-            infoHandler.showInfo('initialized');
+            this.core.reset();
+            this.core.draw(this.canvas);
+            this.printInfo('initialized');
         }
     };
 
@@ -258,20 +234,20 @@ function GameOfLife( config, infoHandler ) {
     this.simulationClean = function ( blDraw )
     {
         this.checkPrerequisites();
-        this.simulation.clean();
+        this.core.clean();
 
         if ( blDraw ) {
-            this.simulation.draw(this.canvas);
+            this.core.draw(this.canvas);
         }
         this.stopTimer();
         this.status = 'cleaned';
-        infoHandler.showInfo('cleaned');
+        this.printInfo('cleaned');
     };
 
     //Stop the timer
     this.stopTimer = function()
     {
-        if (null == this.simulation) {
+        if (null == this.core) {
             throw new Error('Simulation object missing!');
         }
         if (0 != this.timer) {
@@ -304,15 +280,15 @@ function GameOfLife( config, infoHandler ) {
 
             var boundingRect = document.getElementById(config.getCanvasId()).getBoundingClientRect();
             var offsetHeight = Math.ceil(boundingRect.top - config.getTopOffset());
-            this.simulation.setCell(mousex, mousey - offsetHeight);
-            this.simulation.draw(canvas);
+            this.core.setCell(mousex, mousey - offsetHeight);
+            this.core.draw(this.canvas);
         }
     };
 
     this.showStatistics = function()
     {
         this.checkPrerequisites();
-        var oStats = this.simulation.getStatistics();
+        var oStats = this.core.getStatistics();
 
         /*
         var message = '<table> ' +
@@ -328,29 +304,42 @@ function GameOfLife( config, infoHandler ) {
                       'Border mode: ' + config.getMode() + "\n" +
                       'Live cells: ' + oStats.livecount + ' of ' + oStats.cellcount + "\n" +
                       'Iterations: ' + oStats.iterationcount;
-        alert(message);
+
+        this.printInfo(message);
     };
 
     //print am message on the info canvas
-    this.printInfo = function( msg ){
+    this.printInfo = function( msg, canvas ){
 
-        var width    = this.width * config.getColumnCount() + 2 * config.getGridBorder();
-        var height   = this.height * config.getRowCount() + 2 * config.getGridBorder();
-        var maxWidth = width - 20;
-        var xAnchor  = width / 2;
-        var yAnchor  = height / 2 + config.getFontSize() / 4;
+        var infopad  = canvas.getContext('2d');
+        var maxWidth = canvas.width - 20;
+        var xAnchor  = canvas.width / 2;
+        var yAnchor  = canvas.height / 2 + config.getFontSize() / 4;
 
-        this.infopad.fillStyle = "#FFFFFF";
-        this.infopad.font      = "bold " + config.getFontSize() + "px Arial";
-        this.infopad.textAlign = "center";
-        this.infopad.fillText(msg, xAnchor, yAnchor, maxWidth);
+        infopad.fillStyle = "#FFFFFF";
+        infopad.font      = "bold " + config.getFontSize() + "px Arial";
+        infopad.textAlign = "center";
+        infopad.fillText(msg, xAnchor, yAnchor, maxWidth);
     };
 
+    // paint whitewash on a canvas
+    // e.g. on a canvad layered on top of the main canvas to achieve a faded effect
+    this.whiteWash = function (canvas) {
+        var effectspad = canvas.getContext('2d');
+        effectspad.fillStyle = "rgba(255, 255, 255, 0.60)";
+        effectspad.fillRect(0, 0, canvas.width, canvas.height);
+    };
 
-}
+    //clear a canvas
+    this.clearEffects = function (canvas) {
+        var pad = canvas.getContext('2d');
+        pad.clearRect(0, 0, canvas.width, canvas.height);
+    };
+
+};
 
 // main CONWAYS simulation function
-function ConwaysSimulation( config, canvas )
+function ConwaysSimulation( config )
 {
     if ('GolConfig' != config.getName()) {
         throw new Error('Parameter config is not of type GolConfig!');
@@ -566,30 +555,13 @@ function ConwaysSimulation( config, canvas )
     //following code is executed when object of type ConwaysSimulation is instantiated
     this.reset();
     return this;
-}
+};
 
-
-//-------------------------
-//status information
-function InfoHandler( infodivname ) {
-
-    this.getName = function() {
-        return 'InfoHandler';
-    };
-
-    this.infodiv = document.getElementById( infodivname );
-    if ( ! this.infodiv instanceof HTMLDivElement ) {
-        throw new Error("Cannot access infodiv!");
+//error handler safeguard
+function safeGuardErrorHandler() {
+    if ( null ==  errHandler) {
+        errHandler = new ErrorHandler();
     }
-
-    //show status information
-    this.showInfo = function( message ) {
-        this.infodiv.innerHTML = message;
-    };
-
-    this.getInfoDivId = function() {
-        return this.infodiv.id;
-    };
 };
 
 $(window).ready(
@@ -597,19 +569,18 @@ $(window).ready(
 
         if ( "Tests for Conway's Game of Life" != document.title ) {
             try {
-                info   = new InfoHandler( 'runtimeinfo' );
                 config = new GolConfig( 400, 400, 'container' );
-                game   = new GameOfLife( config, info );
+                game   = new GameOfLife( config );
                 game.createPad();
 
-                /*
                 $("#controls").css({
                     position: "absolute",
                     top: ( $("#canvas").height() +  $("#index_main_top").height() )+ "px"
                 }).show();
-                */
+
             } catch(err) {
-                handleError(err);
+                safeGuardErrorHandler();
+                errHandler.consoleLog(err);
             }
         }
     }
@@ -619,7 +590,8 @@ $( "#container" ).bind( "click ontouchstart", function(event) {
     try {
         game.setCell(event);
     } catch(err) {
-        handleError(err);
+        safeGuardErrorHandler();
+        errHandler.consoleLog(err);
     }
 });
 
@@ -627,7 +599,8 @@ $( "#start" ).bind( "click ontouchstart", function(event) {
     try {
         game.simulationStart();
     } catch(err) {
-        handleError(err);
+        safeGuardErrorHandler();
+        errHandler.consoleLog(err);
     }
 });
 
@@ -635,7 +608,8 @@ $( "#stop" ).bind( "click ontouchstart", function(event) {
     try {
         game.simulationStop();
     } catch(err) {
-        handleError(err);
+        safeGuardErrorHandler();
+        errHandler.consoleLog(err);
     }
 });
 
@@ -643,7 +617,8 @@ $( "#reset" ).bind( "click ontouchstart", function(event) {
     try {
         game.simulationReset();
     } catch(err) {
-        handleError(err);
+        safeGuardErrorHandler();
+        errHandler.consoleLog(err);
     }
 });
 
@@ -651,7 +626,8 @@ $( "#clean" ).bind( "click ontouchstart", function(event) {
     try {
         game.simulationClean(true);
     } catch(err) {
-        handleError(err);
+        safeGuardErrorHandler();
+        errHandler.consoleLog(err);
     }
 });
 
@@ -659,7 +635,8 @@ $( "#mode" ).bind( "click ontouchstart", function(event) {
     try {
         config.switchMode();
     } catch(err) {
-        handleError(err);
+        safeGuardErrorHandler();
+        errHandler.consoleLog(err);
     }
 });
 
@@ -667,6 +644,7 @@ $( "#info" ).bind( "click ontouchstart", function(event) {
     try {
         game.showStatistics();
     } catch(err) {
-        handleError(err);
+        safeGuardErrorHandler();
+        errHandler.consoleLog(err);
     }
 });

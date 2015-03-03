@@ -16,5 +16,5 @@
 .siminfo > table{text-align: left; margin: 0; padding: 0;}
 .siminfo.moreinfo {font-size:8px; color: #EF0000}
 
-.mysize{ max-width: 400px;}
+.mysize{ max-width: 400px; max-height: 400px;}
 .pos{position: absolute;}

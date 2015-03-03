@@ -66,6 +66,7 @@ assetic:
             output: css/hrbundle.css
         bundle_hr_js_simulation:
             inputs:
+                - '@HrBundle/Resources/public/hr/js/base.js'
                 - '@HrBundle/Resources/public/hr/js/simulation.js'
             output: js/hrbundle_simulation.js
         bundle_hr_js_solitaire:

@@ -3,6 +3,8 @@
  */
 
 //TODO: nicely sliding tiles ;), means: use draggable elements
+    // remove info thingy, not needed, rename messager to info afterwards
+    //check if we need ismobiledevice flag
 
 var game      = null;
 var config    = null;
@@ -111,6 +113,7 @@ function TilesConfig( width, height, containerid ) {
     };
     this.getNeutralColor = function() {
         return this.neutralColor;
+    };
     };
     this.getShuffleMaxCount = function() {
         return this.shuffleMaxCount;
