@@ -36,12 +36,12 @@ function checkLeading(i) {
 function TimeTracker(displayId) {
 
     this.displaylive = false;
-    this.displaydiv  = null;
-    this.startTime   = null;
+    this.displaydiv = null;
+    this.startTime = null;
 
-    if ( 0 < displayId.length) {
+    if (0 < displayId.length) {
         this.displaylive = true;
-        this.displaydiv  = document.getElementById(displayId);
+        this.displaydiv = document.getElementById(displayId);
 
         if (undefined == this.displaydiv) {
             throw new Error('display div not found!');
@@ -67,19 +67,17 @@ function TimeTracker(displayId) {
         }
 
         var now = new Date();
-        var secondsSpent = Math.floor((now.getTime()- this.getStartTime()) / 1000);
-        return secondsSpent;
+        return Math.floor((now.getTime() - this.getStartTime()) / 1000);
     };
 
     //get time spent since start in nice'n shiny display format
-    this.getDisplay = function() {
-        var secs    = this.getSecondsSpent();
-        var hours   = checkLeading(Math.floor(secs / 3600));
+    this.getDisplay = function () {
+        var secs = this.getSecondsSpent();
+        var hours = checkLeading(Math.floor(secs / 3600));
         var minutes = checkLeading(Math.floor((secs - 3600 * hours) / 60));
         var seconds = checkLeading(Math.floor(secs - 3600 * hours - minutes * 60));
 
-        var display = hours + ':' + minutes + ':' + seconds;
-        return display;
+        return display = hours + ':' + minutes + ':' + seconds;
     };
 
     // stop timer
@@ -91,7 +89,7 @@ function TimeTracker(displayId) {
     };
 
     //display information
-    this.showDisplay = function() {
+    this.showDisplay = function () {
 
         if (!this.displaylive) {
             throw new Error('Cannot auto display due to missing div.');
@@ -99,25 +97,25 @@ function TimeTracker(displayId) {
 
         this.displaydiv.innerHTML = this.getDisplay();
     };
-};
+}
 
 //error handling
 function ErrorHandler() {
 
-    this.getName = function() {
+    this.getName = function () {
         return 'ErrorHandler';
     };
 
     // log error message to console
-    this.consoleLog = function(err) {
+    this.consoleLog = function (err) {
         console.log(err.message);
     };
 
     //display message on screen
-    this.toDiv = function(divname) {
+    this.toDiv = function (divname) {
         document.getElementById(divname).innerHTML = err.message;
     };
-};
+}
 
 //game base functionality
 function GameBase(config) {
@@ -125,9 +123,12 @@ function GameBase(config) {
     this.canvasses = null;
 
     //append canvas element
-    this.getCanvas = function(canvasId, zIndex) {
+    this.getCanvas = function (canvasId, zIndex) {
 
         var container = document.getElementById(config.getContainerId());
+        //container.style.position = "relative";
+        //container.style.height = "403";
+        //container.style.width = "403";
 
         if (typeof canvasId === "undefined") {
             canvasId = config.getCanvasId();
@@ -135,30 +136,32 @@ function GameBase(config) {
         if (typeof zIndex === "undefined") {
             zIndex = 0;
         }
-        if ( null == this.canvasses ) {
+        if (null == this.canvasses) {
             this.canvasses = new Object();
             container.innerHTML = '';
         }
 
-        if ( typeof this.canvasses[canvasId] === "undefined" ) {
-            if ( null == document.getElementById(config.getContainerId()) ) {
-                throw new Error( "Need element with id '" + config.getContainerId() + "' for canvas!" );
+        if (typeof this.canvasses[canvasId] === "undefined") {
+            if (null == document.getElementById(config.getContainerId())) {
+                throw new Error("Need element with id '" + config.getContainerId() + "' for canvas!");
             }
-            if ( null != document.getElementById(canvasId)) {
-                throw new Error('canvas already exists');
+            if (null != document.getElementById(canvasId)) {
+                throw new Error('canvas ' + canvasId + ' already exists');
             }
 
-            var canvas            = document.createElement('canvas');
+            var canvas = document.createElement('canvas');
+            canvas.style.top = 0;
+            canvas.style.left = 0;
             canvas.style.position = 'absolute';
-            canvas.style.zIndex   = zIndex;
-            canvas.width          = config.getWidth();
-            canvas.height         = config.getHeight();
-            canvas.id             = canvasId;
+            canvas.style.zIndex = zIndex;
+            canvas.width = config.getWidth();
+            canvas.height = config.getHeight();
+            canvas.id = canvasId;
             container.appendChild(canvas);
 
             this.canvasses[canvasId] = canvas;
         }
-        if ( ! this.canvasses[canvasId].getContext ) {
+        if (!this.canvasses[canvasId].getContext) {
             throw new Error('Missing canvas context for ' + canvasId + '!');
         }
         return this.canvasses[canvasId];

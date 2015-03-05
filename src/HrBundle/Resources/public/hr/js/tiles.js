@@ -3,53 +3,51 @@
  */
 
 //TODO: nicely sliding tiles ;), means: use draggable elements
-    // remove info thingy, not needed, rename messager to info afterwards
-    //check if we need ismobiledevice flag
+// remove info thingy, not needed, rename messager to info afterwards
+//check if we need ismobiledevice flag
 
-var game      = null;
-var config    = null;
-var shuffler  = null;
-var messager  = null;
-var info      = null;
-var interval  = null;
-var timer     = null;
+var game = null;
+var config = null;
+var shuffler = null;
+var messager = null;
+var info = null;
+var interval = null;
+var timer = null;
 
 // configuration
 // parameters: - width       width available for game area
 //             - height      height available for game area
 //             - containerid id of container div for canvas
 //
-function TilesConfig( width, height, containerid ) {
+function TilesConfig(width, height, containerid) {
 
     this.canvasid = 'canvas';
     this.containerid = 'container';
     this.width = width;
     this.height = height;
 
-    if ( 0 < containerid.length ) {
+    if (0 < containerid.length) {
         this.containerid = containerid;
     }
-    if ( !$.isNumeric(width) ) {
+    if (!$.isNumeric(width)) {
         throw new Error('width is not a number!');
     }
-    if ( !$.isNumeric(height) ) {
+    if (!$.isNumeric(height)) {
         throw new Error('height is not a number');
     }
 
     // we have 10px padding to the left and 2px to the top
-    this.leftOffset    = 12;
-    this.topOffset     = 2;
-    this.gridSize      = 75;
-    this.gridBorder    = 2;
-    this.ballMaxRadius = 30;
-    this.ballMinRadius = 10;
-    this.columnCount   = 6;
-    this.rowCount      = this.columnCount;
+    this.leftOffset = 12;
+    this.topOffset = 2;
+    this.gridSize = 75;
+    this.gridBorder = 2;
+    this.columnCount = 6;
+    this.rowCount = this.columnCount;
 
     this.shuffleMaxCount = 200;
 
-    this.deadColor    = '#C6C6C6';
-    this.aliveColor   = '#9AB0E5';
+    this.deadColor = '#C6C6C6';
+    this.aliveColor = '#9AB0E5';
     this.neutralColor = 'FF0000'; //'#446ED9';
 
     //fontsize for infoCanvas
@@ -69,59 +67,58 @@ function TilesConfig( width, height, containerid ) {
     this.innerColors[3] = '#33FF33';
 
     //getters
-    this.getName = function() {
+    this.getName = function () {
         return 'TilesConfig';
     };
-    this.getCanvasId = function() {
+    this.getCanvasId = function () {
         return this.canvasid;
     };
-    this.getContainerId = function() {
+    this.getContainerId = function () {
         return this.containerid;
     };
-    this.getWidth = function() {
+    this.getWidth = function () {
         return this.width;
     };
-    this.getHeight = function() {
+    this.getHeight = function () {
         return this.height;
     };
-    this.getLeftOffset = function() {
+    this.getLeftOffset = function () {
         return this.leftOffset;
     };
-    this.getTopOffset = function() {
+    this.getTopOffset = function () {
         return this.topOffset;
     };
-    this.getGridBorder = function() {
+    this.getGridBorder = function () {
         return this.gridBorder;
     };
-    this.getColumnCount = function() {
+    this.getColumnCount = function () {
         return this.columnCount;
     };
-    this.getRowCount = function() {
+    this.getRowCount = function () {
         return this.rowCount;
     };
-    this.getOuterColors = function() {
+    this.getOuterColors = function () {
         return this.outerColors;
     };
-    this.getInnerColors = function() {
+    this.getInnerColors = function () {
         return this.innerColors;
     };
-    this.getDeadColor = function() {
+    this.getDeadColor = function () {
         return this.deadColor;
     };
-    this.getAliveColor = function() {
+    this.getAliveColor = function () {
         return this.aliveColor;
     };
-    this.getNeutralColor = function() {
+    this.getNeutralColor = function () {
         return this.neutralColor;
     };
-    };
-    this.getShuffleMaxCount = function() {
+    this.getShuffleMaxCount = function () {
         return this.shuffleMaxCount;
     };
-    this.getFontSize = function(){
+    this.getFontSize = function () {
         return this.fontSize;
     };
-};
+}
 
 //position object
 function Pos(xcnt, ycnt) {
@@ -129,22 +126,22 @@ function Pos(xcnt, ycnt) {
     this.xpos = xcnt;
     this.ypos = ycnt;
 
-    this.getXpos = function(){
+    this.getXpos = function () {
         return this.xpos;
     };
 
-    this.getYpos = function(){
+    this.getYpos = function () {
         return this.ypos;
     };
 
-    this.setXpos = function(xpos){
+    this.setXpos = function (xpos) {
         this.xpos = xpos;
     };
 
-    this.setYpos = function(ypos){
+    this.setYpos = function (ypos) {
         this.ypos = ypos;
     };
-};
+}
 
 //center ball color gradient
 function centerBall(config, gamepad) {
@@ -153,13 +150,13 @@ function centerBall(config, gamepad) {
         throw new Error('Parameter config is not of type TilesConfig!');
     }
 
-    this.iRanda = Math.floor(Math.random() * config.getInnerColors().length);
-    this.iRandb = Math.floor(Math.random() * config.getOuterColors().length);
+    var iRanda = Math.floor(Math.random() * config.getInnerColors().length);
+    var iRandb = Math.floor(Math.random() * config.getOuterColors().length);
 
     this.xballcoord = Math.floor(config.getWidth() / 2);
     this.yballcoord = Math.floor(config.getHeight() / 2);
-    this.inner      = Math.floor(config.getWidth() / 16);
-    this.offcenter  = Math.floor(config.getWidth() / 8);
+    this.inner = Math.floor(config.getWidth() / 16);
+    this.offcenter = Math.floor(config.getWidth() / 8);
 
     this.radius = Math.min(Math.floor(config.getWidth() / 2), Math.floor(config.getHeight() / 2));
     this.colora = config.getInnerColors()[iRanda];
@@ -178,24 +175,22 @@ function centerBall(config, gamepad) {
     ballGrad.addColorStop(1, config.getAliveColor());
 
     return ballGrad;
-};
+}
 
 //main game handling function
-function Tiles(config, info)
-{
-    this.canvas         = null;
-    this.effectsCanvas  = null;
-    this.infoCanvas     = null;
-    this.core           = null;
-    this.base           = new GameBase(config);
-    this.status         = 'new'; // will be one of new, ready, running, over, shuffling
-    this.shuffleCount   = 0;
-    this.isShuffling    = false;
-    this.isMobileDevice = false;
-    this.oMove          = null;
-    this.startPos       = null;
-    this.endPos         = null;
-    this.selectedTile   = null;
+function Tiles(config, info) {
+    this.canvas = null;
+    this.effectsCanvas = null;
+    this.infoCanvas = null;
+    this.core = null;
+    this.base = new GameBase(config);
+    this.status = 'new'; // will be one of new, ready, running, over, shuffling
+    this.shuffleCount = 0;
+    this.isShuffling = false;
+    this.oMove = null;
+    this.startPos = null;
+    this.endPos = null;
+    this.selectedTile = null;
 
     if ('TilesConfig' != config.getName()) {
         throw new Error('Parameter config is not of type TilesConfig!');
@@ -205,30 +200,30 @@ function Tiles(config, info)
     }
 
     //getters
-    this.getName = function() {
+    this.getName = function () {
         return 'Tiles';
     };
-    this.getStatus = function(){
+    this.getStatus = function () {
         return this.status;
     };
-    this.isShufflingNow = function() {
+    this.isShufflingNow = function () {
         return this.isShuffling;
     };
-    this.getShuffleCount = function() {
+    this.getShuffleCount = function () {
         return this.shuffleCount;
     };
 
     //setters
-    this.setStatus = function(status){
+    this.setStatus = function (status) {
         this.status = status;
     };
 
-    this.increaseShuffleCount = function() {
+    this.increaseShuffleCount = function () {
         this.shuffleCount++;
     };
 
-    this.startShuffle = function() {
-        if ( true == this.isShufflingNow() ) {
+    this.startShuffle = function () {
+        if (true == this.isShufflingNow()) {
             throw new Error('Shuffling was already started!');
         }
         this.setStatus('shuffling');
@@ -236,8 +231,8 @@ function Tiles(config, info)
         this.shuffleCount = 0;
     };
 
-    this.stopShuffle = function() {
-        if ( false == this.isShufflingNow() ) {
+    this.stopShuffle = function () {
+        if (false == this.isShufflingNow()) {
             throw new Error('Shuffling was already stopped!');
         }
         this.setStatus('ready');
@@ -245,7 +240,7 @@ function Tiles(config, info)
     };
 
     //check mandatories
-    this.checkPrerequisites = function() {
+    this.checkPrerequisites = function () {
         if (null == this.canvas) {
             throw new Error('No canvas yet!');
         }
@@ -261,29 +256,28 @@ function Tiles(config, info)
     };
 
     // fill the canvas
-    this.createPad = function()
-    {
-        this.canvas        = this.base.getCanvas(config.getCanvasId(), 0);
+    this.createPad = function () {
+        this.canvas = this.base.getCanvas(config.getCanvasId(), 0);
         this.effectsCanvas = this.base.getCanvas('effects', 1);
-        this.infoCanvas    = this.base.getCanvas('infocan', 2);
+        this.infoCanvas = this.base.getCanvas('infocan', 2);
 
         if (null != this.core) {
             throw new Error('Game core already instantiated!');
         }
 
-        this.core = new TilesCore( config, new Array(this.canvas, this.effectsCanvas, this.infoCanvas) );
+        this.core = new TilesCore(config, new Array(this.canvas, this.effectsCanvas, this.infoCanvas));
         this.core.draw(this.canvas);
         this.setStatus('new');
     };
 
     //set to initial state
-    this.shuffle = function() {
+    this.shuffle = function () {
 
         this.checkPrerequisites();
 
-        if ( this.isShufflingNow()
-             || ( 'new' != this.getStatus() )
-           ) {
+        if (this.isShufflingNow()
+            || ( 'new' != this.getStatus() )
+        ) {
             return;
         }
         this.startShuffle();
@@ -296,7 +290,9 @@ function Tiles(config, info)
 
         //repeat shuffling
         game = this;
-        shuffler = setTimeout( function() { doShuffle(); }, 10 );
+        shuffler = setTimeout(function () {
+            doShuffle();
+        }, 10);
     };
 
     //check game status
@@ -321,7 +317,7 @@ function Tiles(config, info)
     };
 
     // select a field
-    this.handleMove = function( eventsource ) {
+    this.handleMove = function (eventsource) {
 
         this.checkPrerequisites();
 
@@ -337,7 +333,7 @@ function Tiles(config, info)
         }
 
         var res = this.checkGame();
-        if ( false ==  res ) {
+        if (false == res) {
             // nothing to be done
             return false;
         }
@@ -346,11 +342,12 @@ function Tiles(config, info)
         var boundingRect = document.getElementById(config.getCanvasId()).getBoundingClientRect();
         var offsetHeight = Math.ceil(boundingRect.top - config.getTopOffset());
 
+        var mousex = eventsource.clientX;
+        var mousey = eventsource.clientY;
+
         switch (eventType) {
 
             case 'mousedown':
-                var mousex = eventsource.clientX;
-                var mousey = eventsource.clientY;
                 this.startPos = new Pos();
                 this.startPos.setXpos(mousex);
                 this.startPos.setYpos(mousey);
@@ -358,13 +355,11 @@ function Tiles(config, info)
                 break;
 
             case 'mouseup':
-                var mousex = eventsource.clientX;
-                var mousey = eventsource.clientY;
                 this.endPos = new Pos();
                 this.endPos.setXpos(mousex);
                 this.endPos.setYpos(mousey);
 
-                if (   (this.startPos.getXpos() != this.endPos.getXpos())
+                if ((this.startPos.getXpos() != this.endPos.getXpos())
                     || (this.startPos.getYpos() != this.endPos.getYpos())
                 ) {
                     this.core.endMove(mousex, mousey - offsetHeight - config.getTopOffset());
@@ -373,7 +368,7 @@ function Tiles(config, info)
                 }
                 this.oMove = null;
                 this.startPos = null;
-                this.endPos   = null;
+                this.endPos = null;
                 break;
 
             case 'touchstart':
@@ -381,8 +376,8 @@ function Tiles(config, info)
                 eventsource.preventDefault();
 
                 //use this for the touchscreen, we are only interested in the first finger touching the screen
-                var mousex = eventsource.touches[0].pageX;
-                var mousey = eventsource.touches[0].pageY;
+                mousex = eventsource.touches[0].pageX;
+                mousey = eventsource.touches[0].pageY;
                 this.core.startMove(mousex, mousey - offsetHeight - config.getTopOffset());
                 break;
 
@@ -397,8 +392,8 @@ function Tiles(config, info)
 
             case 'touchend':
                 //if we have an end position end the move, if not cancel the move
-                if ( null != this.oMove ) {
-                    this.core.endMove( this.oMove.getXpos(), this.oMove.getYpos() - offsetHeight - config.getTopOffset());
+                if (null != this.oMove) {
+                    this.core.endMove(this.oMove.getXpos(), this.oMove.getYpos() - offsetHeight - config.getTopOffset());
                 } else {
                     this.core.cancelMove();
                 }
@@ -409,43 +404,42 @@ function Tiles(config, info)
                 break;
         }
 
-        if ( this.core.isGameOver() ) {
+        if (this.core.isGameOver()) {
             this.handleGameOver();
         }
     };
 
     // show info that game is done
-    this.handleGameOver = function()
-    {
+    this.handleGameOver = function () {
         this.setStatus('over');
         this.core.whiteWash();
         stopTimer();
 
         var messages = new Array();
         messages[0] = 'Game Over! ';
-        messages[1] = 'Moves: ' +  this.core.getCountOfMoves()
+        messages[1] = 'Moves: ' + this.core.getCountOfMoves();
         messages[2] = 'Time: ' + timer.getDisplay();
 
         game = this;
-        messager = setTimeout( doInfo, 100, messages, 0 );
+        messager = setTimeout(doInfo, 100, messages, 0);
     };
-};
+}
 
 //rotate messages on info canvas
-function doInfo( messages, counter ) {
+function doInfo(messages, counter) {
 
-    if ( messages.length <= counter) {
+    if (messages.length <= counter) {
         counter = 0;
     }
     game.core.clearEffects('info');
     game.core.printInfo(messages[counter]);
     counter++;
-    messager = setTimeout( doInfo, 1000, messages, counter );
+    messager = setTimeout(doInfo, 1000, messages, counter);
 }
 
 //stop info loop
 function stopInfo() {
-    if ( typeof messager != 'undefined') {
+    if (typeof messager != 'undefined') {
         window.clearTimeout(messager);
     }
     game.core.clearEffects('info');
@@ -453,40 +447,42 @@ function stopInfo() {
 
 //shuffle the tiles
 function doShuffle() {
-    if ( game.getShuffleCount() < config.getShuffleMaxCount() ) {
+    if (game.getShuffleCount() < config.getShuffleMaxCount()) {
         game.increaseShuffleCount();
         game.core.shuffleOnce();
-        shuffler = setTimeout( function() { doShuffle(); }, 10 );
+        shuffler = setTimeout(function () {
+            doShuffle();
+        }, 10);
     } else {
         clearTimeout(shuffler);
         game.stopShuffle();
         game.core.clearEffects('effects');
         game.core.clearEffects('info');
     }
-};
+}
 
 // tiles business model
 function TilesCore(config, canvasses) {
 
-    this.countOfMoves  = 0;
-    this.gamepad       = canvasses[0].getContext('2d');
-    this.effectspad    = canvasses[1].getContext('2d');
-    this.infopad       = canvasses[2].getContext('2d');
-    this.gameArea      = new Array();
+    this.countOfMoves = 0;
+    this.gamepad = canvasses[0].getContext('2d');
+    this.effectspad = canvasses[1].getContext('2d');
+    this.infopad = canvasses[2].getContext('2d');
+    this.gameArea = new Array();
     this.shuffledTiles = new Array();
-    this.emptyTile     = null;
-    this.gameOver      = false;
+    this.emptyTile = null;
+    this.gameOver = false;
 
-    this.width  = Math.floor( config.getWidth() / config.getColumnCount());
-    this.height = Math.floor( config.getHeight() / config.getRowCount());
+    this.width = Math.floor(config.getWidth() / config.getColumnCount());
+    this.height = Math.floor(config.getHeight() / config.getRowCount());
 
     this.ballGrad = centerBall(config, this.gamepad);
 
-   //getters
-    this.getCountOfMoves = function() {
+    //getters
+    this.getCountOfMoves = function () {
         return this.countOfMoves;
     };
-    this.isGameOver = function() {
+    this.isGameOver = function () {
         return this.gameOver;
     };
 
@@ -503,9 +499,9 @@ function TilesCore(config, canvasses) {
         for (var xcounter = 0; xcounter < config.getColumnCount(); xcounter++) {
             for (var ycounter = 0; ycounter < config.getRowCount(); ycounter++) {
 
-                this.drawField( 'filled', xcounter, ycounter );
+                this.drawField('filled', xcounter, ycounter);
                 this.gameArea[ycounter * config.getColumnCount() + xcounter] = true;
-                this.shuffledTiles[ycounter*config.getColumnCount() + xcounter] = new Pos(xcounter, ycounter);
+                this.shuffledTiles[ycounter * config.getColumnCount() + xcounter] = new Pos(xcounter, ycounter);
             }
         }
 
@@ -514,13 +510,12 @@ function TilesCore(config, canvasses) {
         var emptyY = config.getRowCount() - 1;
         this.emptyTile = new Pos(emptyX, emptyY);
         this.drawField('empty', emptyX, emptyY);
-        this.gameArea[emptyX*config.getColumnCount() + emptyY] = false;
+        this.gameArea[emptyX * config.getColumnCount() + emptyY] = false;
 
     };
 
     // draw an empty field
-    this.drawField = function( mode, xcounter, ycounter )
-    {
+    this.drawField = function (mode, xcounter, ycounter) {
         var xcoord = xcounter * this.width + config.getGridBorder();
         var ycoord = ycounter * this.height + config.getGridBorder();
 
@@ -528,7 +523,7 @@ function TilesCore(config, canvasses) {
 
             case 'empty':
                 this.gamepad.fillStyle = config.getDeadColor();
-                this.gamepad.fillRect( xcoord,
+                this.gamepad.fillRect(xcoord,
                     ycoord,
                     this.width - config.getGridBorder(),
                     this.height - config.getGridBorder());
@@ -557,22 +552,22 @@ function TilesCore(config, canvasses) {
     };
 
     // fade part or all of effects canvas
-    this.whiteWash = function( xCnt, yCnt ) {
+    this.whiteWash = function (xCnt, yCnt) {
 
         // paint whitewash over the image to achieve a faded effect
         this.effectspad.fillStyle = "rgba(255, 255, 255, 0.60)";
 
         var xcoord = xCnt * this.width + config.getGridBorder();
         var ycoord = yCnt * this.height + config.getGridBorder();
-        var width  = this.width - config.getGridBorder();
+        var width = this.width - config.getGridBorder();
         var height = this.height - config.getGridBorder();
 
-        if (    (typeof xCnt === "undefined" )
-             || (typeof yCnt === "undefined" )
-           ) {
+        if ((typeof xCnt === "undefined" )
+            || (typeof yCnt === "undefined" )
+        ) {
             xcoord = 0;
             ycoord = 0;
-            width  = this.width * config.getColumnCount() + 2 * config.getGridBorder();
+            width = this.width * config.getColumnCount() + 2 * config.getGridBorder();
             height = this.height * config.getRowCount() + 2 * config.getGridBorder();
         }
 
@@ -580,8 +575,8 @@ function TilesCore(config, canvasses) {
     };
 
     //clear effects or info canvas
-    this.clearEffects = function( name ) {
-        var width  = this.width * config.getColumnCount() + 2 * config.getGridBorder();
+    this.clearEffects = function (name) {
+        var width = this.width * config.getColumnCount() + 2 * config.getGridBorder();
         var height = this.height * config.getRowCount() + 2 * config.getGridBorder();
 
         switch (name) {
@@ -599,16 +594,16 @@ function TilesCore(config, canvasses) {
     };
 
     //print am message on the info canvas
-    this.printInfo = function( msg ){
+    this.printInfo = function (msg) {
 
-        var width    = this.width * config.getColumnCount() + 2 * config.getGridBorder();
-        var height   = this.height * config.getRowCount() + 2 * config.getGridBorder();
+        var width = this.width * config.getColumnCount() + 2 * config.getGridBorder();
+        var height = this.height * config.getRowCount() + 2 * config.getGridBorder();
         var maxWidth = width - 20;
-        var xAnchor  = width / 2;
-        var yAnchor  = height / 2 + config.getFontSize() / 4;
+        var xAnchor = width / 2;
+        var yAnchor = height / 2 + config.getFontSize() / 4;
 
         this.infopad.fillStyle = "#FFFFFF";
-        this.infopad.font      = "bold " + config.getFontSize() + "px Arial";
+        this.infopad.font = "bold " + config.getFontSize() + "px Arial";
         this.infopad.textAlign = "center";
         this.infopad.fillText(msg, xAnchor, yAnchor, maxWidth);
     };
@@ -650,16 +645,15 @@ function TilesCore(config, canvasses) {
     };
 
     //function runs a check if all tiles are restored to their initial positions
-    this.checkTilesPositions = function()
-    {
+    this.checkTilesPositions = function () {
         var blAllOrig = true;
 
         //run over this.shuffledTiles array and check if they are in the correct position
-        for ( var xcnt = 1; xcnt < config.getColumnCount(); xcnt++) {
-            for ( var ycnt=1; ycnt < config.getRowCount(); ycnt++) {
+        for (var xcnt = 1; xcnt < config.getColumnCount(); xcnt++) {
+            for (var ycnt = 1; ycnt < config.getRowCount(); ycnt++) {
                 var oPos = this.shuffledTiles[ycnt * config.getRowCount() + xcnt];
-                if(    ( xcnt != oPos.getXpos() )
-                    || ( ycnt != oPos.getYpos() ) ) {
+                if (( xcnt != oPos.getXpos() )
+                    || ( ycnt != oPos.getYpos() )) {
                     blAllOrig = false;
                 }
             }
@@ -670,28 +664,27 @@ function TilesCore(config, canvasses) {
     //The empty tile is the lower right one when starting.
     // We need to keep track where that one currently resides
     //and randomly chose one of the neighboring tiles (not the diagonally adjacent ones) to be moved (max 4)
-    this.shuffleOnce = function()
-    {
+    this.shuffleOnce = function () {
         // choose coord (x/0 or y/1), choose sign _(+ or 1)
-        var iRandCoord = Math.floor( Math.random() * 2);
-        var iRandSign  = Math.floor( Math.random() * 2) * 2 - 1;
+        var iRandCoord = Math.floor(Math.random() * 2);
+        var iRandSign = Math.floor(Math.random() * 2) * 2 - 1;
 
         var iXPlus = 0;
         var iYPlus = 0;
-        if ( 0 == iRandCoord) {
+        if (0 == iRandCoord) {
             iXPlus = 1;
         } else {
             iYPlus = 1;
         }
 
-        var iXPosFrom = (this.emptyTile.getXpos() + iRandSign*iXPlus);
-        var iYPosFrom = (this.emptyTile.getYpos() + iRandSign*iYPlus);
+        var iXPosFrom = (this.emptyTile.getXpos() + iRandSign * iXPlus);
+        var iYPosFrom = (this.emptyTile.getYpos() + iRandSign * iYPlus);
 
-        if (   ( 0 <= iXPosFrom )
+        if (( 0 <= iXPosFrom )
             && ( 0 <= iYPosFrom )
             && ( iXPosFrom < config.getColumnCount())
             && ( iYPosFrom < config.getRowCount())
-            &&  this.gameArea[iYPosFrom * config.getRowCount() + iXPosFrom]
+            && this.gameArea[iYPosFrom * config.getRowCount() + iXPosFrom]
         ) {
             // switch the tiles
             this.switchTiles(iXPosFrom, iYPosFrom);
@@ -699,7 +692,7 @@ function TilesCore(config, canvasses) {
     };
 
     //start the move
-    this.startMove = function( xpos, ypos) {
+    this.startMove = function (xpos, ypos) {
 
         // check if we already have a selected tile ( an unfinished move)
         if (null != this.selectedTile) {
@@ -726,7 +719,7 @@ function TilesCore(config, canvasses) {
     };
 
     // end the move
-    this.endMove = function( xpos, ypos) {
+    this.endMove = function (xpos, ypos) {
 
         //we need a selected tile
         if (null == this.selectedTile) {
@@ -739,13 +732,13 @@ function TilesCore(config, canvasses) {
 
         //coordinate diff
         var totaldiff = Math.abs(this.selectedTile.getXpos() - xcnt) +
-                        Math.abs(this.selectedTile.getYpos() - ycnt);
+            Math.abs(this.selectedTile.getYpos() - ycnt);
 
         //Only move to empty tile field is possible
         //Diagonal moves are forbidden so totaldiff MUST be 1
-        if ( ( xcnt == this.emptyTile.getXpos() )
-             && ( ycnt == this.emptyTile.getYpos() )
-             && (1 == totaldiff)
+        if (( xcnt == this.emptyTile.getXpos() )
+            && ( ycnt == this.emptyTile.getYpos() )
+            && (1 == totaldiff)
         ) {
             this.switchTiles(this.selectedTile.getXpos(), this.selectedTile.getYpos());
             this.clearEffects('effects');
@@ -757,54 +750,50 @@ function TilesCore(config, canvasses) {
     };
 
     // cancel a move
-    this.cancelMove = function()
-    {
+    this.cancelMove = function () {
         this.clearEffects('effects');
         this.selectedTile = null;
     };
 
-};
+}
 
 //start timer
-function startTimer(){
+function startTimer() {
     timer = new TimeTracker('timerdiv');
     timer.startTimer();
-    interval = setInterval( function() { timer.showDisplay(); }, 50 );
+    interval = setInterval(function () {
+        timer.showDisplay();
+    }, 50);
 }
 
 // stop timer
-function stopTimer(haltTimeTracker){
+function stopTimer(haltTimeTracker) {
 
-    if ( typeof interval != 'undefined') {
+    if (typeof interval != 'undefined') {
         window.clearInterval(interval);
     }
 
-    if ( ( null != timer )
+    if (( null != timer )
         && haltTimeTracker
     ) {
         timer.stopTimer(true);
         timer.showDisplay();
         timer = null;
     }
-};
+}
 
 //page load
 $(window).ready(
     function () {
         try {
-            info   = new InfoHandler('runtimeinfo');
+            info = new InfoHandler('runtimeinfo');
             config = new TilesConfig(400, 400, 'container');
-            game   = new Tiles(config, info);
+            game = new Tiles(config, info);
             game.createPad();
 
             $("#controls").css({
                 position: "absolute",
-                top: ( $("#canvas").height() +  $("#index_main_top").height() )+ "px"
-            }).show();
-
-            $("#controls").css({
-                position: "absolute",
-                top: ( $("#canvas").height() +  $("#index_main_top").height() )+ "px"
+                top: ( $("#canvas").height() + $("#index_main_top").height() ) + "px"
             }).show();
 
         } catch (err) {
@@ -814,17 +803,17 @@ $(window).ready(
 );
 
 //attach events
-$( "#container" ).bind( "mousedown mouseup touchstart touchmove touchend", function(event) {
+$("#container").bind("mousedown mouseup touchstart touchmove touchend", function (event) {
     try {
-        if ( true != game.isShufflingNow() ) {
+        if (true != game.isShufflingNow()) {
             game.handleMove(event);
         }
-    } catch(err) {
+    } catch (err) {
         document.getElementById("errorinfo").innerHTML = err.message;
     }
 });
 
-$( "#shuffle" ).bind( "click ontouchstart", function(event) {
+$("#shuffle").bind("click ontouchstart", function (event) {
     try {
         if (( true != game.isShufflingNow() )
             && ('running' != game.getStatus() )
@@ -836,9 +825,9 @@ $( "#shuffle" ).bind( "click ontouchstart", function(event) {
     }
 });
 
-$( "#reset" ).bind( "click ontouchstart", function(event) {
+$("#reset").bind("click ontouchstart", function (event) {
     try {
-        if ( true != game.isShufflingNow() ) {
+        if (true != game.isShufflingNow()) {
             stopTimer(true);
             stopInfo();
             game = new Tiles(config, info);

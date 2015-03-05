@@ -13,59 +13,55 @@
 {% endblock %}
 
 {% block body_header %}
-    <div id="index_main_top" class="mainindex_top">
-        <table width="100%">
-            <colgroup>
-                <col width="29%" />
-                <col width="1%" />
-                <col width="19%" />
-                <col width="1%" />
-                <col width="50%" />
-            </colgroup>
-            <tr>
-                <td><img align="center" src={{ asset('images/favicon.ico') }} /></td>
-                <td>&nbsp;</td>
-                <td>&nbsp;{% block header_details %}{% endblock %}</td>
-                <td>&nbsp;</td>
-                <td><i>blogaboutwhatever.com's playground</i></td>
-            </tr>
-        </table>
+
+<div id="index_main_top" class="mainindex_top">
+    <div id="index_main_top" class="ui-grid-b">
+        <div class="ui-block-a"><img align="center" src={{ asset('images/favicon.ico') }} /></div>
+        <div class="ui-block-b">{% block header_details %}{% endblock %}</div>
+        <div class="ui-block-c"><i>blogaboutwhatever.com's playground</i></div>
     </div>
+</div>
+
 {% endblock %}
 
 {% block body_main %}
-    <div class="mainindex" >
-        <table align="center">
-            <colgroup>
-                <col width="30%" />
-                <col width="5%" />
-                <col width="30%" />
-                <col width="5%" />
-                <col width="30%" />
-            </colgroup>
-            <tr>
-                <td><a href="simulation" data-ajax="false" alt="Game of Life" title="Game of Life" ><img align="center" src={{ asset('images/pic_simulation.jpg') }} /></a></td>
-                <td>&nbsp;</td>
-                <td><a href="solitaire" data-ajax="false" alt="Solitaire" title="Solitaire" ><img src={{ asset('images/pic_solitaire.jpg') }} /></a></td>
-                <td>&nbsp;</td>
-                <td><a href="tiles" data-ajax="false" alt="Tiles" title="Tiles"><img src={{ asset('images/pic_tiles.jpg') }} /></a></td>
-            </tr>
-            <tr>
-                <td colspan="5">&nbsp;</td>
-            </tr>
-            <tr>
-                <td><a href="home" alt="Memory" title="Memory is not yet available" ><img src={{ asset('images/pic_memory.jpg') }} /></a></td>
-                <td>&nbsp;</td>
-                <td><a href="home" alt="Gems" title="Gems is not yet available"><img src={{ asset('images/pic_gems.jpg') }} /></a></td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-            </tr>
-            <tr>
-                <td colspan="5">&nbsp;</td>
-            </tr>
 
-        </table>
+<div class="mainindex" >
+    <div class="ui-grid-b">
+        <div class="ui-block-a">
+            <a href="simulation" data-ajax="false" title="Game of Life" ><img align="center" src={{ asset('images/pic_simulation.jpg') }} /></a>
+        </div>
+        <div class="ui-block-b">
+            <a href="solitaire" data-ajax="false" title="Solitaire" ><img src={{ asset('images/pic_solitaire.jpg') }} /></a>
+        </div>
+        <div class="ui-block-c">
+            <a href="tiles" data-ajax="false" title="Tiles"><img src={{ asset('images/pic_tiles.jpg') }} /></a>
+        </div>
     </div>
+    <div class="ui-grid-b">
+        <div class="ui-block-a">
+            &nbsp;
+        </div>
+        <div class="ui-block-b">
+            &nbsp;
+        </div>
+        <div class="ui-block-c">
+            &nbsp;
+        </div>
+    </div>
+    <div class="ui-grid-b">
+        <div class="ui-block-a">
+            <a href="home" title="Memory is not yet available" ><img src={{ asset('images/pic_memory.jpg') }} /></a>
+        </div>
+        <div class="ui-block-b">
+            <a href="home" title="Gems is not yet available"><img src={{ asset('images/pic_gems.jpg') }} /></a>
+        </div>
+        <div class="ui-block-c">
+            &nbsp;
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block javascripts %}
