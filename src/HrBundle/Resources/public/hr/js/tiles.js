@@ -3,13 +3,13 @@
  */
 
 //TODO: nicely sliding tiles ;), means: use draggable elements
-// remove info thingy, not needed, rename messager to info afterwards
+// remove info thingy, not needed, rename messenger to info afterwards
 //check if we need ismobiledevice flag
 
 var game = null;
 var config = null;
 var shuffler = null;
-var messager = null;
+var messenger = null;
 var info = null;
 var interval = null;
 var timer = null;
@@ -421,7 +421,7 @@ function Tiles(config, info) {
         messages[2] = 'Time: ' + timer.getDisplay();
 
         game = this;
-        messager = setTimeout(doInfo, 100, messages, 0);
+        messenger = setTimeout(doInfo, 100, messages, 0);
     };
 }
 
@@ -434,13 +434,13 @@ function doInfo(messages, counter) {
     game.core.clearEffects('info');
     game.core.printInfo(messages[counter]);
     counter++;
-    messager = setTimeout(doInfo, 1000, messages, counter);
+    messenger = setTimeout(doInfo, 1000, messages, counter);
 }
 
 //stop info loop
 function stopInfo() {
-    if (typeof messager != 'undefined') {
-        window.clearTimeout(messager);
+    if (typeof messenger != 'undefined') {
+        window.clearTimeout(messenger);
     }
     game.core.clearEffects('info');
 }

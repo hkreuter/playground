@@ -11,24 +11,40 @@
 
 {% block body_main %}
 
-    <div data-role="container" id="container"></div>
+<div class="mainindex relpos" >
 
-    <div id="controls">
-        <div data-role="controls" id="buttons-bottom">
-            <div data-role="content">
-                <div data-role="controlgroup" data-type="horizontal" data-corners="true" data-mini="true" data-shadow="true">
-                    <a href="home" data-theme="a" data-role="button" data-icon="home"    name="home"  >home</a>
-                    <a href="#" data-role="button" data-theme="a" data-icon="gear"  id="reset"  name="reset" >reset</a>
-                </div>
-            </div>
+    <div data-role="content" class="ui-grid-solo">
+        <div class="ui-block-a">
+            <div id="container" class="relpos simsize"></div>
         </div>
-        <div id="timerdiv" class="siminfo"></div>
-        <div id="runtimeinfo" class="siminfo"></div>
-        <div id="errorinfo" class="siminfo"></div>
-        <div id="subinfo" class="siminfo moreinfo">- Solitaire -</div>
     </div>
 
+    <div class="ui-grid-solo">
+        <div class="ui-block-a">
+            <button type="button" id="timerdiv" data-theme="a" data-icon="info"
+                    data-mini="true" data-shadow="false" data-corners="true" >00:00:00</button>
+        </div>
+    </div>
+
+    <div class="ui-grid-a" >
+        <div class="ui-block-a">
+            <button type="button" id="home" data-theme="a" data-icon="home"
+                    data-mini="true" data-shadow="true" data-corners="true" >home</button>
+        </div>
+        <div class="ui-block-b">
+            <button type="button" id="reset" data-theme="a" data-icon="gear"
+                    data-mini="true" data-shadow="true" data-corners="true" >reset</button>
+        </div>
+    </div>
+
+</div>
+
 {% endblock %}
+
+{% block header_details %}
+    <div id="subinfo" class="siminfo moreinfo">- Solitaire -</div>
+{% endblock %}
+
 
 {% block javascripts %}
     {{ parent() }}

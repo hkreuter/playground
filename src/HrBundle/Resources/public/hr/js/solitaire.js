@@ -7,8 +7,10 @@
  */
 
 var game = null;
+var errHandler = null;
 var interval = null;
 var timer = null;
+var messenger = null;
 
 // configuration
 // parameters: - width       width available for game area
@@ -33,6 +35,9 @@ function SolConfig(width, height, containerid) {
     this.aliveColor = '#446ED9';
     this.neutralColor = '#446ED9'; //'#000000';
 
+    //fontsize for infoCanvas
+    this.fontSize = 50;
+
     this.blForbidDiagonalMoves = true;
 
     if (0 < containerid.length) {
@@ -54,13 +59,13 @@ function SolConfig(width, height, containerid) {
         0, 0, 1, 1, 1, 0, 0,
         0, 0, 1, 1, 1, 0, 0];
 
-    this.ballsDefault = [0, 0, 1, 1, 1, 0, 0,
-        0, 0, 1, 1, 1, 0, 0,
-        1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 0, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1,
-        0, 0, 1, 1, 1, 0, 0,
-        0, 0, 1, 1, 1, 0, 0];
+     this.ballsDefault = [0, 0, 1, 1, 1, 0, 0,
+     0, 0, 1, 1, 1, 0, 0,
+     1, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 0, 1, 1, 1,
+     1, 1, 1, 1, 1, 1, 1,
+     0, 0, 1, 1, 1, 0, 0,
+     0, 0, 1, 1, 1, 0, 0];
 
     this.selectedBallDefault = [0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0,
@@ -140,6 +145,9 @@ function SolConfig(width, height, containerid) {
     this.ForbidDiagonalMoves = function () {
         return this.blForbidDiagonalMoves;
     };
+    this.getFontSize = function () {
+        return this.fontSize;
+    };
 
 }
 
@@ -208,19 +216,19 @@ function Solitaire(config, info) {
             || ('running' == this.getStatus() )
         ) {
 
-            if ('touchstart' == eventType) {
-                //use this for ipod touchscreen
-                var mousex = eventsource.touches[0].clientX;
-                var mousey = eventsource.touches[0].clientY;
-            } else {
-                var mousex = eventsource.clientX;
-                var mousey = eventsource.clientY;
-            }
+            var mousex = eventsource.clientX;
+            var mousey = eventsource.clientY;
 
+            if ('touchstart' == eventType) {
+                //use this for a touchscreen
+                mousex = eventsource.touches[0].clientX;
+                mousey = eventsource.touches[0].clientY;
+            }
             var boundingRect = document.getElementById(config.getCanvasId()).getBoundingClientRect();
             var offsetHeight = Math.ceil(boundingRect.top - config.getTopOffset());
+            var offsetWidth = Math.ceil(boundingRect.left - config.getLeftOffset());
 
-            this.core.selectBall(mousex, mousey - offsetHeight - config.getTopOffset());
+            this.core.selectBall(mousex - offsetWidth, mousey - offsetHeight);
         }
     };
 
@@ -237,8 +245,8 @@ function Solitaire(config, info) {
         var ballsLeft = this.core.countLeftoverBalls();
         var countOfMoves = this.core.getCountOfMoves();
 
-        //document.getElementById('subinfo').innerHTML = possibleMoves;
-        var message = '';
+        var messages = new Array();
+        messages[0] = "Game over!";
 
         if (('running' == this.getStatus() )
             && ( 0 == possibleMoves )
@@ -247,13 +255,17 @@ function Solitaire(config, info) {
             if (1 < ballsLeft) {
 
                 this.setStatus('lost');
-                message = "Game over! You Lost! \n\n No more moves possible. \n\n" +
-                ballsLeft + " balls are left.";
+                messages[1] = "You Lost! ";
+                messages[2] = " No more moves possible.";
+                messages[3] = ballsLeft + " balls are left.";
             } else {
                 this.setStatus('won');
-                message = "Game over! You won! \n\n Moves played: " + countOfMoves;
+                messages[1] = "You won!";
+                messages[2] = "Moves played: " + countOfMoves;
             }
-            alert(message);
+
+            game = this;
+            messenger = setTimeout(doInfo, 100, messages, 0);
         }
     };
 
@@ -265,9 +277,53 @@ function Solitaire(config, info) {
             this.core.reset();
             this.setStatus('ready');
             stopTimer(true);
+            stopInfo();
         }
+    };
+
+    //print am message on the info canvas
+    this.printInfo = function (msg) {
+
+        var canvas = this.base.getCanvas('info');
+        var infopad = canvas.getContext('2d');
+        var maxWidth = canvas.width - 20;
+        var xAnchor = canvas.width / 2;
+        var yAnchor = canvas.height / 2 + config.getFontSize() / 4;
+
+        infopad.fillStyle = "#FFFFFF";
+        infopad.font = "bold " + config.getFontSize() + "px Arial";
+        infopad.textAlign = "center";
+        infopad.fillText(msg, xAnchor, yAnchor, maxWidth);
+
+    };
+
+    //clear a canvas
+    this.clearEffects = function (name) {
+        var canvas = this.base.getCanvas(name);
+        var pad = canvas.getContext('2d');
+        pad.clearRect(0, 0, canvas.width, canvas.height);
+    };
+}
+
+//rotate messages on info canvas
+function doInfo(messages, counter) {
+
+    if (messages.length <= counter) {
+        counter = 0;
     }
-};
+    game.clearEffects('info');
+    game.printInfo(messages[counter]);
+    counter++;
+    messenger = setTimeout(doInfo, 1500, messages, counter);
+}
+
+//stop info loop
+function stopInfo() {
+    if (typeof messenger != 'undefined') {
+        window.clearTimeout(messenger);
+    }
+    game.clearEffects('info');
+}
 
 // game core
 SolitaireCore = function (config, canvas) {
@@ -549,17 +605,19 @@ $(window).ready(
             var config = new SolConfig(400, 400, 'container');
             game = new Solitaire(config, info);
             game.createPad();
-
-            $("#controls").css({
-                position: "absolute",
-                top: ( $("#canvas").height() + $("#index_main_top").height() ) + "px"
-            }).show();
-
         } catch (err) {
-            document.getElementById("errorinfo").innerHTML = err.message;
+            safeGuardErrorHandler();
+            errHandler.consoleLog(err);
         }
     }
 );
+
+//error handler safeguard
+function safeGuardErrorHandler() {
+    if (null == errHandler) {
+        errHandler = new ErrorHandler();
+    }
+}
 
 //attach events
 $("#container").bind("click ontouchstart", function (event) {
@@ -567,7 +625,8 @@ $("#container").bind("click ontouchstart", function (event) {
         game.selectBall(event);
         game.checkGame();
     } catch (err) {
-        document.getElementById("errorinfo").innerHTML = err.message;
+        safeGuardErrorHandler();
+        errHandler.consoleLog(err);
     }
 });
 
@@ -575,6 +634,16 @@ $("#reset").bind("click ontouchstart", function (event) {
     try {
         game.reset();
     } catch (err) {
-        document.getElementById("errorinfo").innerHTML = err.message;
+        safeGuardErrorHandler();
+        errHandler.consoleLog(err);
+    }
+});
+
+$("#home").bind("click ontouchstart", function (event) {
+    try {
+        window.location.href = "home";
+    } catch (err) {
+        safeGuardErrorHandler();
+        errHandler.consoleLog(err);
     }
 });
