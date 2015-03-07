@@ -10,9 +10,9 @@ var game = null;
 var config = null;
 var shuffler = null;
 var messenger = null;
-var info = null;
 var interval = null;
 var timer = null;
+var errHandler = null;
 
 // configuration
 // parameters: - width       width available for game area
@@ -178,7 +178,7 @@ function centerBall(config, gamepad) {
 }
 
 //main game handling function
-function Tiles(config, info) {
+function Tiles(config) {
     this.canvas = null;
     this.effectsCanvas = null;
     this.infoCanvas = null;
@@ -194,9 +194,6 @@ function Tiles(config, info) {
 
     if ('TilesConfig' != config.getName()) {
         throw new Error('Parameter config is not of type TilesConfig!');
-    }
-    if ('InfoHandler' != info.getName()) {
-        throw new Error('Parameter infoHandler is not of type infoHandler!');
     }
 
     //getters
@@ -341,6 +338,7 @@ function Tiles(config, info) {
         //handle depending on eventtype
         var boundingRect = document.getElementById(config.getCanvasId()).getBoundingClientRect();
         var offsetHeight = Math.ceil(boundingRect.top - config.getTopOffset());
+        var offsetWidth  = Math.ceil(boundingRect.left - config.getLeftOffset());
 
         var mousex = eventsource.clientX;
         var mousey = eventsource.clientY;
@@ -351,7 +349,8 @@ function Tiles(config, info) {
                 this.startPos = new Pos();
                 this.startPos.setXpos(mousex);
                 this.startPos.setYpos(mousey);
-                this.core.startMove(mousex, mousey - offsetHeight - config.getTopOffset());
+                this.core.startMove(mousex - offsetWidth - config.getLeftOffset(),
+                                    mousey - offsetHeight - config.getTopOffset());
                 break;
 
             case 'mouseup':
@@ -362,7 +361,8 @@ function Tiles(config, info) {
                 if ((this.startPos.getXpos() != this.endPos.getXpos())
                     || (this.startPos.getYpos() != this.endPos.getYpos())
                 ) {
-                    this.core.endMove(mousex, mousey - offsetHeight - config.getTopOffset());
+                    this.core.endMove(mousex - offsetWidth - config.getLeftOffset(),
+                                      mousey - offsetHeight - config.getTopOffset());
                 } else {
                     this.core.cancelMove();
                 }
@@ -376,9 +376,10 @@ function Tiles(config, info) {
                 eventsource.preventDefault();
 
                 //use this for the touchscreen, we are only interested in the first finger touching the screen
-                mousex = eventsource.touches[0].pageX;
-                mousey = eventsource.touches[0].pageY;
-                this.core.startMove(mousex, mousey - offsetHeight - config.getTopOffset());
+                mousex = eventsource.touches[0].clientX;
+                mousey = eventsource.touches[0].clientY;
+                this.core.startMove(mousex - offsetWidth - config.getLeftOffset(),
+                                    mousey - offsetHeight - config.getTopOffset());
                 break;
 
             case 'touchmove':
@@ -386,14 +387,15 @@ function Tiles(config, info) {
                 eventsource.preventDefault();
                 // keep track of position
                 this.oMove = new Pos();
-                this.oMove.setxPos(eventsource.targetTouches[0].pageX);
-                this.oMove.setYPos(eventsource.targetTouches[0].pageY);
+                this.oMove.setxPos(eventsource.targetTouches[0].clientX);
+                this.oMove.setYPos(eventsource.targetTouches[0].clientY);
                 break;
 
             case 'touchend':
                 //if we have an end position end the move, if not cancel the move
                 if (null != this.oMove) {
-                    this.core.endMove(this.oMove.getXpos(), this.oMove.getYpos() - offsetHeight - config.getTopOffset());
+                    this.core.endMove(this.oMove.getXpos() - offsetWidth - config.getLeftOffset(),
+                                      this.oMove.getYpos() - offsetHeight - config.getTopOffset());
                 } else {
                     this.core.cancelMove();
                 }
@@ -782,22 +784,37 @@ function stopTimer(haltTimeTracker) {
     }
 }
 
+//error handler safeguard
+function safeGuardErrorHandler() {
+    if (null == errHandler) {
+        errHandler = new ErrorHandler();
+    }
+}
+
 //page load
 $(window).ready(
     function () {
         try {
-            info = new InfoHandler('runtimeinfo');
-            config = new TilesConfig(400, 400, 'container');
-            game = new Tiles(config, info);
-            game.createPad();
+            var containerId  = 'container';
+            var containerdiv = document.getElementById(containerId);
+            var areawidth    = 400;
 
-            $("#controls").css({
-                position: "absolute",
-                top: ( $("#canvas").height() + $("#index_main_top").height() ) + "px"
+            //check size
+            if (window.innerWidth < containerdiv.clientWidth){
+                areawidth = Math.max(window.innerWidth, 320);
+            }
+
+            $("#container").css({
+                "width": areawidth,
+                "height": areawidth
             }).show();
 
+            config = new TilesConfig(areawidth, areawidth, containerId);
+            game = new Tiles(config);
+            game.createPad();
         } catch (err) {
-            document.getElementById("errorinfo").innerHTML = err.message;
+            safeGuardErrorHandler();
+            errHandler.consoleLog(err);
         }
     }
 );
@@ -809,7 +826,8 @@ $("#container").bind("mousedown mouseup touchstart touchmove touchend", function
             game.handleMove(event);
         }
     } catch (err) {
-        document.getElementById("errorinfo").innerHTML = err.message;
+        safeGuardErrorHandler();
+        errHandler.consoleLog(err);
     }
 });
 
@@ -821,19 +839,31 @@ $("#shuffle").bind("click ontouchstart", function (event) {
             game.shuffle();
         }
     } catch (err) {
-        document.getElementById("errorinfo").innerHTML = err.message;
+        safeGuardErrorHandler();
+        errHandler.consoleLog(err);
     }
 });
 
 $("#reset").bind("click ontouchstart", function (event) {
     try {
+        document.getElementById('blafoo').innerHTML = '';
         if (true != game.isShufflingNow()) {
             stopTimer(true);
             stopInfo();
-            game = new Tiles(config, info);
+            game = new Tiles(config);
             game.createPad();
         }
     } catch (err) {
-        document.getElementById("errorinfo").innerHTML = err.message;
+        safeGuardErrorHandler();
+        errHandler.consoleLog(err);
+    }
+});
+
+$("#home").bind("click ontouchstart", function (event) {
+    try {
+        window.location.href = "home";
+    } catch (err) {
+        safeGuardErrorHandler();
+        errHandler.consoleLog(err);
     }
 });

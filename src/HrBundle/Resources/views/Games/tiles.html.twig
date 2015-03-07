@@ -8,28 +8,50 @@
     {{ parent() }}
 {% endblock %}
 
-
 {% block body_main %}
 
-    <div data-role="container" id="container"></div>
+<div class="mainindex relpos" >
 
-    <div id="controls">
-        <div data-role="controls" id="buttons-bottom" position="float">
-            <div data-role="content">
-                <div data-role="controlgroup" data-type="horizontal" data-corners="true" data-mini="true" data-shadow="true">
-                    <a href="home" data-theme="a" data-role="button" data-icon="home"    name="home"  >home</a>
-                    <a href="#" data-role="button" data-theme="a" data-icon="arrow-r" id="shuffle" name="shuffle" >shuffle</a>
-                    <a href="#" data-role="button" data-theme="a" data-icon="minus"   id="reset"  name="reset"  >reset</a>
-                </div>
-            </div>
+    <div class="ui-grid-solo">
+        <div class="ui-block-a">
+            <div id="container" class="relpos simsize"></div>
         </div>
-
-        <div id="timerdiv" class="siminfo"></div>
-        <div id="runtimeinfo" class="siminfo"></div>
-        <div id="errorinfo" class="siminfo"></div>
-        <div id="subinfo" class="siminfo moreinfo">- Tiles -</div>
     </div>
 
+    <div class="ui-grid-solo">
+        <div class="ui-block-a">
+            <div id="blafoo">xxx</div>
+        </div>
+    </div>
+
+    <div class="ui-grid-solo">
+        <div class="ui-block-a">
+            <button type="button" id="timerdiv" data-theme="a" data-icon="info"
+                    data-mini="true" data-shadow="false" data-corners="true" >00:00:00</button>
+        </div>
+    </div>
+
+    <div class="ui-grid-b" >
+        <div class="ui-block-a">
+            <button type="button" id="home" data-theme="a" data-icon="home"
+                    data-mini="true" data-shadow="true" data-corners="true" >home</button>
+        </div>
+        <div class="ui-block-b">
+            <button type="button" id="shuffle" data-theme="a" data-icon="grid"
+                    data-mini="true" data-shadow="true" data-corners="true" >shuffle</button>
+        </div>
+        <div class="ui-block-c">
+            <button type="button" id="reset" data-theme="a" data-icon="refresh"
+                    data-mini="true" data-shadow="true" data-corners="true" >reset</button>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block header_details %}
+    <div id="subinfo" class="siminfo moreinfo">- Tiles -</div>
 {% endblock %}
 
 {% block javascripts %}

@@ -1,8 +1,9 @@
 /* index styles  - index pics are of size 71x71 */
-.mainindex_top { background: rgba(92, 138, 140, 0.63); color: #FFFFFF; height: 40px; padding: 5px 5px;
+.mainindex_top { background: rgba(92, 138, 140, 0.63); color: #FFFFFF; height: 40px; /*padding: 5px 5px; */
     font-size:15px; font-family: Verdana; }
 
-.mainindex { background: rgba(114, 170, 172, 0.58); color: #666666; min-height: 420px; padding: 20px 10px; text-align: center;
+.mainindex { background: rgba(114, 170, 172, 0.58); color: #666666; /*min-height: 420px; */ margin: 0 auto;
+             /*padding: 20px 10px;*/ text-align: center;
 }
 
 .start {background: #007F00; color: #FFFFFF; }
@@ -16,6 +17,6 @@
 .siminfo > table{text-align: left; margin: 0; padding: 0;}
 .siminfo.moreinfo {font-size:8px; color: #EF0000}
 
-.mysize{max-width: 600px;}
+.mysize{max-width: 600px; margin: 0 auto;}
 .simsize{ width: 403px; height: 403px; margin: 0 auto; }
 .relpos{position: relative;}

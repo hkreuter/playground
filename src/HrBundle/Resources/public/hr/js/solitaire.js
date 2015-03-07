@@ -152,7 +152,7 @@ function SolConfig(width, height, containerid) {
 }
 
 // game controller
-function Solitaire(config, info) {
+function Solitaire(config) {
 
     this.canvas = null;
     this.core = null;
@@ -162,9 +162,6 @@ function Solitaire(config, info) {
 
     if ('SolConfig' != config.getName()) {
         throw new Error('Parameter config is not of type SolConfig!');
-    }
-    if ('InfoHandler' != info.getName()) {
-        throw new Error('Parameter infoHandler is not of type infoHandler!');
     }
 
     //getters
@@ -601,9 +598,8 @@ function stopTimer(haltTimeTracker) {
 $(window).ready(
     function () {
         try {
-            var info = new InfoHandler('runtimeinfo');
             var config = new SolConfig(400, 400, 'container');
-            game = new Solitaire(config, info);
+            game = new Solitaire(config);
             game.createPad();
         } catch (err) {
             safeGuardErrorHandler();
