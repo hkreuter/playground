@@ -32,7 +32,7 @@ function SolConfig(containerid) {
     this.topOffset = 2;
     this.gridSize = 42;
     this.gridBorder = 2;
-    this.ballRadius = 18;
+    this.minBallRadius = 18;
     this.squareCnt = 7;
 
     this.columnCount = 7;
@@ -98,21 +98,21 @@ function SolConfig(containerid) {
     };
     this.getGameArea = function () {
         var ret = new Array();
-        for (var i = 0; i < this.getRowCount() * this.getColumnCount(); i++) {
+        for (var i = 0; i < this.getSquareCount() * this.getSquareCount(); i++) {
             ret[i] = this.gameArea[i];
         }
         return ret;
     };
     this.getBallsDefault = function () {
         var ret = new Array();
-        for (var i = 0; i < this.getRowCount() * this.getColumnCount(); i++) {
+        for (var i = 0; i < this.getSquareCount() * this.getSquareCount(); i++) {
             ret[i] = this.ballsDefault[i];
         }
         return ret;
     };
     this.getSelectedBallDefault = function () {
         var ret = new Array();
-        for (var i = 0; i < this.getRowCount() * this.getColumnCount(); i++) {
+        for (var i = 0; i < this.getSquareCount() * this.getSquareCount(); i++) {
             ret[i] = this.selectedBallDefault[i];
         }
         return ret;
@@ -123,27 +123,15 @@ function SolConfig(containerid) {
     this.getTopOffset = function () {
         return this.topOffset;
     };
-
-    this.getGridSize = function () {
-        return this.gridSize;
-    };
     this.getGridBorder = function () {
         return this.gridBorder;
     };
-
     this.getBallRadius = function () {
-        return this.ballRadius;
+        var ballRadius = Math.floor( 0.4*this.getWidth()/this.getSquareCount() );
+        return Math.max(this.minBallRadius, ballRadius);
     };
     this.getSquareCount = function () {
         return this.squareCnt;
-    };
-
-
-    this.getColumnCount = function () {
-        return this.columnCount;
-    };
-    this.getRowCount = function () {
-        return this.rowCount;
     };
     this.getDeadColor = function () {
         return this.deadColor;
@@ -358,8 +346,8 @@ SolitaireCore = function (config, canvas) {
     this.selectedBall = config.getSelectedBallDefault();
     this.gameArea = config.getGameArea();
     this.gamepad = canvas.getContext('2d');
-    this.width = Math.floor(canvas.width / config.getColumnCount());
-    this.height = Math.floor(canvas.height / config.getRowCount());
+    this.width = Math.floor(canvas.width / config.getSquareCount());
+    this.height = Math.floor(canvas.height / config.getSquareCount());
 
     //getters
     this.getCountOfMoves = function () {
@@ -373,15 +361,15 @@ SolitaireCore = function (config, canvas) {
         // first clear all, plus 1 is for the grid lines
         this.gamepad.fillStyle = config.getAliveColor();
         this.gamepad.fillRect(0, 0,
-            config.getColumnCount() * this.width + 1,
-            config.getRowCount() * this.height + 1);
+            config.getSquareCount() * this.width + 1,
+            config.getSquareCount() * this.height + 1);
 
         // we need a double loop, outer loop iterates over x values
         // inner loop runs over y values
-        for (var xcounter = 0; xcounter < config.getColumnCount(); xcounter++) {
-            for (var ycounter = 0; ycounter < config.getRowCount(); ycounter++) {
+        for (var xcounter = 0; xcounter < config.getSquareCount(); xcounter++) {
+            for (var ycounter = 0; ycounter < config.getSquareCount(); ycounter++) {
 
-                var ballPos = ycounter * config.getColumnCount() + xcounter;
+                var ballPos = ycounter * config.getSquareCount() + xcounter;
 
                 // draw gamepad
                 if (this.gameArea[ballPos]
@@ -448,7 +436,7 @@ SolitaireCore = function (config, canvas) {
     // count remaining balls
     this.countLeftoverBalls = function () {
         var leftoverBalls = 0;
-        for (var cnt = 0; cnt < config.getRowCount() * config.getColumnCount(); cnt++) {
+        for (var cnt = 0; cnt < config.getSquareCount() * config.getSquareCount(); cnt++) {
             leftoverBalls += Number(this.balls[cnt]);
         }
         return leftoverBalls;
@@ -470,15 +458,15 @@ SolitaireCore = function (config, canvas) {
 
         var possibleMoves = 0;
 
-        for (var selcnt = 0; selcnt < config.getRowCount() * config.getColumnCount(); selcnt++) {
+        for (var selcnt = 0; selcnt < config.getSquareCount() * config.getSquareCount(); selcnt++) {
             //if it lies inside the game area, check for possible moves
             // AND there must be a ball at the start position
             if (this.gameArea[selcnt] && this.balls[selcnt]) {
-                for (var mvcnt = 0; mvcnt < config.getRowCount() * config.getColumnCount(); mvcnt++) {
+                for (var mvcnt = 0; mvcnt < config.getSquareCount() * config.getSquareCount(); mvcnt++) {
                     if (this.gameArea[mvcnt]) {
                         var blMovePossible = false;
-                        var yTo = Math.floor(mvcnt / config.getColumnCount());
-                        var xTo = Math.floor(mvcnt - yTo * config.getRowCount());
+                        var yTo = Math.floor(mvcnt / config.getSquareCount());
+                        var xTo = Math.floor(mvcnt - yTo * config.getSquareCount());
                         blMovePossible = this.checkMove(selcnt, xTo, yTo, false);
                         possibleMoves += Number(blMovePossible);
                     }
@@ -490,8 +478,8 @@ SolitaireCore = function (config, canvas) {
 
     //check if a move is possible
     this.checkMove = function (selectedPos, xTo, yTo, blDoForReal) {
-        var yFrom = Math.floor(selectedPos / config.getColumnCount());
-        var xFrom = Math.floor(selectedPos - yFrom * config.getRowCount());
+        var yFrom = Math.floor(selectedPos / config.getSquareCount());
+        var xFrom = Math.floor(selectedPos - yFrom * config.getSquareCount());
 
         // possible positions are xFrom+/- 2 or same, yFrom +/- 2 or same
         if ((xTo != (xFrom + 2) )
@@ -516,12 +504,12 @@ SolitaireCore = function (config, canvas) {
 
         //we got here, now check if end position is inside the game area,
         //should not happen we are outside but better check again here
-        if (!this.gameArea[yTo * config.getRowCount() + xTo]) {
+        if (!this.gameArea[yTo * config.getSquareCount() + xTo]) {
             return false;
         }
 
         //can only jump to empty slot
-        if (this.balls[yTo * config.getRowCount() + xTo]) {
+        if (this.balls[yTo * config.getSquareCount() + xTo]) {
             return false;
         }
 
@@ -534,16 +522,16 @@ SolitaireCore = function (config, canvas) {
         var yDel = yFrom + yDiff;
 
         // check if the is a ball that can be deleted
-        if (!this.balls[yDel * config.getRowCount() + xDel]) {
+        if (!this.balls[yDel * config.getSquareCount() + xDel]) {
             return false;
         }
 
         //make it a real move?
         if (blDoForReal) {
             //balls from position will be empty and balls to has to be filled
-            this.balls[yFrom * config.getRowCount() + xFrom] = 0;
-            this.balls[yTo * config.getRowCount() + xTo] = 1;
-            this.balls[yDel * config.getRowCount() + xDel] = 0;
+            this.balls[yFrom * config.getSquareCount() + xFrom] = 0;
+            this.balls[yTo * config.getSquareCount() + xTo] = 1;
+            this.balls[yDel * config.getSquareCount() + xDel] = 0;
 
             // update the canvas
             this.drawBall('delete', xFrom, yFrom);
@@ -562,21 +550,21 @@ SolitaireCore = function (config, canvas) {
 
         //only one ball can be selected at a time
         var selectedPos = null;
-        for (var cnt = 0; cnt < config.getRowCount() * config.getColumnCount(); cnt++) {
+        for (var cnt = 0; cnt < config.getSquareCount() * config.getSquareCount(); cnt++) {
             if (this.selectedBall[cnt]) {
                 selectedPos = cnt;
             }
         }
 
         //ball must be inside the game area, on an allowed field
-        if ((ycnt >= 0) && (ycnt < config.getRowCount())
-            && (xcnt >= 0) && (xcnt < config.getColumnCount())
-            && this.gameArea[ycnt * config.getRowCount() + xcnt]
+        if ((ycnt >= 0) && (ycnt < config.getSquareCount())
+            && (xcnt >= 0) && (xcnt < config.getSquareCount())
+            && this.gameArea[ycnt * config.getSquareCount() + xcnt]
         ) {
             // if we have already a formerly selected ball and click selects this one, unselect it
             if (null != selectedPos) {
-                if (this.selectedBall[ycnt * config.getRowCount() + xcnt]) {
-                    this.selectedBall[ycnt * config.getRowCount() + xcnt] = 0;
+                if (this.selectedBall[ycnt * config.getSquareCount() + xcnt]) {
+                    this.selectedBall[ycnt * config.getSquareCount() + xcnt] = 0;
                     // and draw that ball as normal (unselected) ball
                     this.drawBall('draw', xcnt, ycnt);
                 } else {
@@ -592,8 +580,8 @@ SolitaireCore = function (config, canvas) {
                 }
             } else {
                 // no ball selected yet, check if there is a ball at that position
-                if (this.balls[ycnt * config.getRowCount() + xcnt]) {
-                    this.selectedBall[ycnt * config.getRowCount() + xcnt] = 1;
+                if (this.balls[ycnt * config.getSquareCount() + xcnt]) {
+                    this.selectedBall[ycnt * config.getSquareCount() + xcnt] = 1;
                     // and draw that ball as selected
                     this.drawBall('selected', xcnt, ycnt);
                 }
