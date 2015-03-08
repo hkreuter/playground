@@ -13,15 +13,19 @@ var timer = null;
 var messenger = null;
 
 // configuration
-// parameters: - width       width available for game area
-//             - height      height available for game area
-//             - containerid id of container div for canvas
+// parameter:  - containerid id of container div for canvas
 //
-function SolConfig(width, height, containerid) {
+function SolConfig(containerid) {
     this.canvasid = 'canvas';
     this.containerid = 'container';
-    this.width = width;
-    this.height = height;
+    this.maxWidth = 500;
+    this.minWidth = 320;
+
+    //width available for game area
+    this.width = null;
+
+    //height available for game area
+    this.height = null;
 
     // we have 10px padding to the left and 2px to the top
     this.leftOffset = 12;
@@ -29,11 +33,12 @@ function SolConfig(width, height, containerid) {
     this.gridSize = 42;
     this.gridBorder = 2;
     this.ballRadius = 18;
+    this.squareCnt = 7;
+
     this.columnCount = 7;
     this.rowCount = this.columnCount;
     this.deadColor = '#C6C6C6';
     this.aliveColor = '#446ED9';
-    this.neutralColor = '#446ED9'; //'#000000';
 
     //fontsize for infoCanvas
     this.fontSize = 50;
@@ -42,12 +47,6 @@ function SolConfig(width, height, containerid) {
 
     if (0 < containerid.length) {
         this.containerid = containerid;
-    }
-    if (!$.isNumeric(width)) {
-        throw new Error('width is not a number!');
-    }
-    if (!$.isNumeric(height)) {
-        throw new Error('height is not a number');
     }
 
     // contains basic gamepad info
@@ -59,13 +58,13 @@ function SolConfig(width, height, containerid) {
         0, 0, 1, 1, 1, 0, 0,
         0, 0, 1, 1, 1, 0, 0];
 
-     this.ballsDefault = [0, 0, 1, 1, 1, 0, 0,
-     0, 0, 1, 1, 1, 0, 0,
-     1, 1, 1, 1, 1, 1, 1,
-     1, 1, 1, 0, 1, 1, 1,
-     1, 1, 1, 1, 1, 1, 1,
-     0, 0, 1, 1, 1, 0, 0,
-     0, 0, 1, 1, 1, 0, 0];
+    this.ballsDefault = [0, 0, 1, 1, 1, 0, 0,
+        0, 0, 1, 1, 1, 0, 0,
+        1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 0, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1,
+        0, 0, 1, 1, 1, 0, 0,
+        0, 0, 1, 1, 1, 0, 0];
 
     this.selectedBallDefault = [0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0,
@@ -86,9 +85,15 @@ function SolConfig(width, height, containerid) {
         return this.containerid;
     };
     this.getWidth = function () {
+        if (!$.isNumeric(this.width)) {
+            throw new Error('Need to set width, it is not a number!');
+        }
         return this.width;
     };
     this.getHeight = function () {
+        if (!$.isNumeric(this.height)) {
+            throw new Error('Need to set height, it is not a number');
+        }
         return this.height;
     };
     this.getGameArea = function () {
@@ -118,15 +123,22 @@ function SolConfig(width, height, containerid) {
     this.getTopOffset = function () {
         return this.topOffset;
     };
+
     this.getGridSize = function () {
         return this.gridSize;
     };
     this.getGridBorder = function () {
         return this.gridBorder;
     };
+
     this.getBallRadius = function () {
         return this.ballRadius;
     };
+    this.getSquareCount = function () {
+        return this.squareCnt;
+    };
+
+
     this.getColumnCount = function () {
         return this.columnCount;
     };
@@ -139,16 +151,32 @@ function SolConfig(width, height, containerid) {
     this.getAliveColor = function () {
         return this.aliveColor;
     };
-    this.getNeutralColor = function () {
-        return this.neutralColor;
-    };
     this.ForbidDiagonalMoves = function () {
         return this.blForbidDiagonalMoves;
     };
     this.getFontSize = function () {
         return this.fontSize;
     };
+    this.getMaxWidth = function () {
+        return this.maxWidth;
+    };
+    this.getMinWidth = function () {
+        return this.minWidth;
+    };
 
+    //setters
+    this.setWidth = function (width) {
+        if (!$.isNumeric(width)) {
+            throw new Error('Width is not a number!');
+        }
+        this.width = Math.floor(width);
+    };
+    this.setHeight = function (height) {
+        if (!$.isNumeric(height)) {
+            throw new Error('Height is not a number!');
+        }
+        this.height = Math.floor(height);
+    };
 }
 
 // game controller
@@ -598,25 +626,23 @@ function stopTimer(haltTimeTracker) {
 $(window).ready(
     function () {
         try {
-            var containerId  = 'container';
-            var containerdiv = document.getElementById(containerId);
-            var areawidth    = 400;
+            config = new SolConfig('container');
+            var areawidth = Math.min(window.innerWidth, config.getMaxWidth());
+            areawidth = Math.max(areawidth, config.getMinWidth());
+            areawidth = Math.floor(areawidth / config.getSquareCount()) * config.getSquareCount();
 
-            //check size
-            if (window.innerWidth < containerdiv.clientWidth){
-                areawidth = Math.max(window.innerWidth, 320);
-            }
+            config.setWidth(areawidth);
+            config.setHeight(areawidth);
 
             $("#container").css({
-                "width": areawidth,
-                "height": areawidth
+                "width": config.getWidth(),
+                "height": config.getHeight()
             }).show();
 
             $("#page_content").css({
                 "height": window.innerHeight
             }).show();
 
-            var config = new SolConfig(areawidth, areawidth, 'container');
             game = new Solitaire(config);
             game.createPad();
         } catch (err) {

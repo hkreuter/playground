@@ -601,7 +601,6 @@ $(window).ready(
 
         if ("Tests for Conway's Game of Life" != document.title) {
             try {
-
                 config = new GolConfig('container');
                 var areawidth = Math.min(window.innerWidth, config.getMaxWidth());
                 areawidth     = Math.max(areawidth, config.getMinWidth());
@@ -619,7 +618,6 @@ $(window).ready(
                     "height": window.innerHeight
                 }).show();
 
-                //config = new GolConfig(areawidth, areawidth, containerId);
                 game = new GameOfLife(config);
                 game.createPad();
             } catch (err) {
