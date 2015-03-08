@@ -598,7 +598,25 @@ function stopTimer(haltTimeTracker) {
 $(window).ready(
     function () {
         try {
-            var config = new SolConfig(400, 400, 'container');
+            var containerId  = 'container';
+            var containerdiv = document.getElementById(containerId);
+            var areawidth    = 400;
+
+            //check size
+            if (window.innerWidth < containerdiv.clientWidth){
+                areawidth = Math.max(window.innerWidth, 320);
+            }
+
+            $("#container").css({
+                "width": areawidth,
+                "height": areawidth
+            }).show();
+
+            $("#page_content").css({
+                "height": window.innerHeight
+            }).show();
+
+            var config = new SolConfig(areawidth, areawidth, 'container');
             game = new Solitaire(config);
             game.createPad();
         } catch (err) {

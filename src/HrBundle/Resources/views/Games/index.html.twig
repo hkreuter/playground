@@ -17,8 +17,8 @@
 <div id="index_main_top" class="mainindex_top">
     <div class="ui-grid-b">
         <div class="ui-block-a"><img align="center" src={{ asset('images/favicon.ico') }} /></div>
-        <div class="ui-block-b">{% block header_details %}{% endblock %}</div>
-        <div class="ui-block-c"><i>blogaboutwhatever.com's playground</i></div>
+        <div class="ui-block-b"><i>blogaboutwhatever.com's playground</i></div>
+        <div class="ui-block-c">{% block header_details %}{% endblock %}</div>
     </div>
 </div>
 
@@ -26,7 +26,7 @@
 
 {% block body_main %}
 
-<div class="mainindex" >
+<div id="body_main" class="mainindex mainpad" >
     <div class="ui-grid-b">
         <div class="ui-block-a">
             <a href="simulation" data-ajax="false" title="Game of Life" ><img align="center" src={{ asset('images/pic_simulation.jpg') }} /></a>

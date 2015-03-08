@@ -8,37 +8,37 @@
     {{ parent() }}
 {% endblock %}
 
-
 {% block body_main %}
+    <div id="body_main" class="mainindex relpos">
 
-<div class="mainindex relpos" >
-
-    <div data-role="content" class="ui-grid-solo">
-        <div class="ui-block-a">
-            <div id="container" class="relpos simsize"></div>
+        <div class="ui-grid-solo">
+            <div class="ui-block-a">
+                <div id="container" class="relpos simsize"></div>
+            </div>
         </div>
+
+        <div class="ui-grid-solo">
+            <div class="ui-block-a">
+                <button type="button" id="timerdiv" data-theme="a" data-icon="info"
+                        data-mini="true" data-shadow="false" data-corners="true">00:00:00
+                </button>
+            </div>
+        </div>
+
+        <div class="ui-grid-a">
+            <div class="ui-block-a">
+                <button type="button" id="home" data-theme="a" data-icon="home"
+                        data-mini="true" data-shadow="true" data-corners="true">home
+                </button>
+            </div>
+            <div class="ui-block-b">
+                <button type="button" id="reset" data-theme="a" data-icon="gear"
+                        data-mini="true" data-shadow="true" data-corners="true">reset
+                </button>
+            </div>
+        </div>
+
     </div>
-
-    <div class="ui-grid-solo">
-        <div class="ui-block-a">
-            <button type="button" id="timerdiv" data-theme="a" data-icon="info"
-                    data-mini="true" data-shadow="false" data-corners="true" >00:00:00</button>
-        </div>
-    </div>
-
-    <div class="ui-grid-a" >
-        <div class="ui-block-a">
-            <button type="button" id="home" data-theme="a" data-icon="home"
-                    data-mini="true" data-shadow="true" data-corners="true" >home</button>
-        </div>
-        <div class="ui-block-b">
-            <button type="button" id="reset" data-theme="a" data-icon="gear"
-                    data-mini="true" data-shadow="true" data-corners="true" >reset</button>
-        </div>
-    </div>
-
-</div>
-
 {% endblock %}
 
 {% block header_details %}
@@ -50,8 +50,8 @@
     {{ parent() }}
 
     {% javascripts '@jquery_and_ui'
-                   '@bundle_hr_js_solitaire' %}
-        <script src="{{ asset_url }}"></script>
+    '@bundle_hr_js_solitaire' %}
+    <script src="{{ asset_url }}"></script>
     {% endjavascripts %}
 
 {% endblock %}

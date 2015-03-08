@@ -846,7 +846,6 @@ $("#shuffle").bind("click ontouchstart", function (event) {
 
 $("#reset").bind("click ontouchstart", function (event) {
     try {
-        document.getElementById('blafoo').innerHTML = '';
         if (true != game.isShufflingNow()) {
             stopTimer(true);
             stopInfo();

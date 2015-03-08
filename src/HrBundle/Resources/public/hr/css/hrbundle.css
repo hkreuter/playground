@@ -1,10 +1,10 @@
 /* index styles  - index pics are of size 71x71 */
-.mainindex_top { background: rgba(92, 138, 140, 0.63); color: #FFFFFF; height: 40px; /*padding: 5px 5px; */
-    font-size:15px; font-family: Verdana; }
+.mainindex_top { background: rgba(92, 138, 140, 0.63); color: #FFFFFF; height: 40px; padding: 5px 5px;
+    font-size:13px; font-family: Verdana; }
 
-.mainindex { background: rgba(114, 170, 172, 0.58); color: #666666; /*min-height: 420px; */ margin: 0 auto;
-             /*padding: 20px 10px;*/ text-align: center;
-}
+.mainindex { color: #666666; min-height: 420px;  margin: 0 auto; /*padding: 20px 10px;*/ text-align: center; }
+.mainpad { padding: 20px 10px; }
+.minpad { padding: 5px 0px; }
 
 .start {background: #007F00; color: #FFFFFF; }
 .stop  {background: #EF0000; color: #FFFFFF; }
@@ -13,10 +13,10 @@
 .mode  {background: #C6C6C6; color: #666666; }
 
 /* siminfo styles */
-.siminfo{text-align: center; top:0;left:0;font-size: 10px}
+.siminfo{text-align: center; top:0;left:0;font-size: 11px}
 .siminfo > table{text-align: left; margin: 0; padding: 0;}
-.siminfo.moreinfo {font-size:8px; color: #EF0000}
+.siminfo.moreinfo {font-size:11px; color: #FFFFFF; text-align: center;}
 
-.mysize{max-width: 600px; margin: 0 auto;}
+.mysize{max-width: 600px; margin: 0 auto; background: rgba(114, 170, 172, 0.58); }
 .simsize{ width: 403px; height: 403px; margin: 0 auto; }
 .relpos{position: relative;}

@@ -1,27 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        {% block head %}
-            <meta charset="utf-8" />
+<head>
+    {% block head %}
+        <meta charset="utf-8"/>
 
-            {% block meta %}{% endblock %}
-            <title>{% block title %}blogaboutwhatever.com's playground{% endblock %}</title>
+        {% block meta %}{% endblock %}
+        <title>{% block title %}blogaboutwhatever.com's playground{% endblock %}</title>
 
-            {% block stylesheets %}{% endblock %}
-            {% block link %}<link rel="icon" type="image/x-icon" href={{ asset('images/favicon.ico') }} />{% endblock %}
-        {% endblock %}
-    </head>
-    <body>
-       <div data-role="page" id="page_content" class="mysize">
-           {% block body %}
-               {% block body_header %}{% endblock %}
-               {% block body_main %}{% endblock %}
-               {% block body_footer %}{% endblock %}
-           {% endblock %}
-           {% block javascripts %}{% endblock %}
-       </div>
-    </body>
+        {% block stylesheets %}{% endblock %}
+        {% block link %}
+            <link rel="icon" type="image/x-icon" href={{ asset('images/favicon.ico') }} />{% endblock %}
+    {% endblock %}
+</head>
+<body>
+<div data-role="page" id="page_content" class="mysize">
+    {% block body %}
+        {% block body_header %}{% endblock %}
+        {% block body_main %}{% endblock %}
+        {% block body_footer %}{% endblock %}
+    {% endblock %}
+    {% block javascripts %}{% endblock %}
+</div>
+</body>
 
 </html>
-
-

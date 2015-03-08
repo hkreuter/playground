@@ -10,26 +10,25 @@ var errHandler = null;
 var timeoutClean = null;
 
 // configuration
-// parameters: - width       width available for game area
-//             - height      height available for game area
-//             - containerid id of container div for canvas
+// parameter: - containerid id of container div for canvas
 //
-function GolConfig(width, height, containerid) {
-    if (!$.isNumeric(width)) {
-        throw new Error('width is not a number!');
-    }
-    if (!$.isNumeric(height)) {
-        throw new Error('height is not a number');
-    }
+function GolConfig(containerid) {
 
     this.mode = 'normal';
     this.deadColor = '#C6C6C6';
     this.aliveColor = '#446ED9';
     this.neutralColor = '#132042'; //'#000000';
-    this.gridBorder = 0; //1;
+    this.gridBorder = 0;
     this.gridSize = 13;
-    this.width = Math.ceil(width);
-    this.height = Math.ceil(height);
+    this.maxWidth = 500;
+    this.minWidth = 320;
+
+    //width available for game area
+    this.width = null;
+
+    //height available for game area
+    this.height = null;
+
     this.canvasid = 'canvas';
     this.containerid = 'container';
     this.msgduration = 2000;
@@ -41,10 +40,6 @@ function GolConfig(width, height, containerid) {
     // we have 10px padding to the left and 2px to the top
     this.leftOffset = 0; //10;
     this.topOffset = 0; //2;
-
-    //canvas dimensions
-    this.canvasWidth = width - 2 * this.leftOffset;
-    this.canvasHeight = height - this.topOffset;
 
     //fontsize for infoCanvas
     this.fontSize = 30;
@@ -60,9 +55,15 @@ function GolConfig(width, height, containerid) {
         return this.containerid;
     };
     this.getWidth = function () {
+        if (!$.isNumeric(this.width)) {
+            throw new Error('Need to set width, it is not a number!');
+        }
         return this.width;
     };
     this.getHeight = function () {
+        if (!$.isNumeric(this.height)) {
+            throw new Error('Need to set height, it is not a number');
+        }
         return this.height;
     };
     this.getDeadColor = function () {
@@ -83,15 +84,29 @@ function GolConfig(width, height, containerid) {
     this.getFontSize = function () {
         return this.fontSize;
     };
+    this.getMaxWidth = function() {
+        return this.maxWidth;
+    };
+    this.getMinWidth = function() {
+        return this.minWidth;
+    };
+    this.getGridSize = function() {
+        return this.gridSize;
+    };
+    this.getGridBorder = function() {
+        return this.gridBorder;
+    };
 
     //calculate number of columns canvas will have
     this.getColumnCnt = function () {
-        return Math.floor((this.canvasWidth - this.gridBorder) / this.gridSize);
+        var canvasWidth = this.getWidth() - 2 * this.getLeftOffset();
+        return Math.floor((canvasWidth - this.getGridBorder()) / this.getGridSize());
     };
 
     //calculate number of rows canvas will have
     this.getRowCnt = function () {
-        return Math.floor((this.canvasHeight - this.gridBorder) / this.gridSize);
+        var canvasHeight = this.getHeight() - 2 * this.getTopOffset();
+        return Math.floor((canvasHeight - this.getGridBorder()) / this.getGridSize());
     };
 
     // set the border mode, default is normal (dead cells outside)
@@ -99,10 +114,10 @@ function GolConfig(width, height, containerid) {
 
         if ('torus' == this.mode) {
             this.mode = 'normal';
-            game.printInfo('Border mode: normal.');
+            game.printInfo('Border mode: normal');
         } else {
             this.mode = 'torus';
-            game.printInfo('Border mode: torus.');
+            game.printInfo('Border mode: torus');
         }
     };
 
@@ -111,6 +126,20 @@ function GolConfig(width, height, containerid) {
     };
     this.getMsgDuration = function () {
         return this.msgduration;
+    };
+
+    //setters
+    this.setWidth = function (width) {
+        if (!$.isNumeric(width)) {
+            throw new Error('Width is not a number!');
+        }
+        this.width = Math.floor(width);
+    };
+    this.setHeight = function (height) {
+        if (!$.isNumeric(height)) {
+            throw new Error('Height is not a number!');
+        }
+        this.height = Math.floor(height);
     };
 }
 
@@ -572,7 +601,25 @@ $(window).ready(
 
         if ("Tests for Conway's Game of Life" != document.title) {
             try {
-                config = new GolConfig(403, 403, 'container');
+
+                config = new GolConfig('container');
+                var areawidth = Math.min(window.innerWidth, config.getMaxWidth());
+                areawidth     = Math.max(areawidth, config.getMinWidth());
+                areawidth = Math.floor( areawidth/config.getGridSize() ) * config.getGridSize();
+
+                config.setWidth(areawidth);
+                config.setHeight(areawidth);
+
+                $("#container").css({
+                    "width": config.getWidth(),
+                    "height": config.getHeight()
+                }).show();
+
+                $("#page_content").css({
+                    "height": window.innerHeight
+                }).show();
+
+                //config = new GolConfig(areawidth, areawidth, containerId);
                 game = new GameOfLife(config);
                 game.createPad();
             } catch (err) {
