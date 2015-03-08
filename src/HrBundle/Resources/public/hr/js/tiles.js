@@ -15,31 +15,28 @@ var timer = null;
 var errHandler = null;
 
 // configuration
-// parameters: - width       width available for game area
-//             - height      height available for game area
-//             - containerid id of container div for canvas
+// parameters: - containerid id of container div for canvas
 //
-function TilesConfig(width, height, containerid) {
+function TilesConfig(containerid) {
 
     this.canvasid = 'canvas';
     this.containerid = 'container';
-    this.width = width;
-    this.height = height;
+    this.maxWidth = 500;
+    this.minWidth = 320;
+
+    //width available for game area
+    this.width = null;
+
+    //height available for game area
+    this.height = null;
 
     if (0 < containerid.length) {
         this.containerid = containerid;
-    }
-    if (!$.isNumeric(width)) {
-        throw new Error('width is not a number!');
-    }
-    if (!$.isNumeric(height)) {
-        throw new Error('height is not a number');
     }
 
     // we have 10px padding to the left and 2px to the top
     this.leftOffset = 12;
     this.topOffset = 2;
-    this.gridSize = 75;
     this.gridBorder = 2;
     this.columnCount = 6;
     this.rowCount = this.columnCount;
@@ -77,9 +74,15 @@ function TilesConfig(width, height, containerid) {
         return this.containerid;
     };
     this.getWidth = function () {
+        if (!$.isNumeric(this.width)) {
+            throw new Error('Need to set width, it is not a number!');
+        }
         return this.width;
     };
     this.getHeight = function () {
+        if (!$.isNumeric(this.height)) {
+            throw new Error('Need to set height, it is not a number');
+        }
         return this.height;
     };
     this.getLeftOffset = function () {
@@ -117,6 +120,26 @@ function TilesConfig(width, height, containerid) {
     };
     this.getFontSize = function () {
         return this.fontSize;
+    };
+    this.getMaxWidth = function () {
+        return this.maxWidth;
+    };
+    this.getMinWidth = function () {
+        return this.minWidth;
+    };
+
+    //setters
+    this.setWidth = function (width) {
+        if (!$.isNumeric(width)) {
+            throw new Error('Width is not a number!');
+        }
+        this.width = Math.floor(width);
+    };
+    this.setHeight = function (height) {
+        if (!$.isNumeric(height)) {
+            throw new Error('Height is not a number!');
+        }
+        this.height = Math.floor(height);
     };
 }
 
@@ -795,21 +818,23 @@ function safeGuardErrorHandler() {
 $(window).ready(
     function () {
         try {
-            var containerId  = 'container';
-            var containerdiv = document.getElementById(containerId);
-            var areawidth    = 400;
+            config = new TilesConfig('container');
+            var areawidth = Math.min(window.innerWidth, config.getMaxWidth());
+            areawidth = Math.max(areawidth, config.getMinWidth());
+            areawidth = Math.floor(areawidth / config.getColumnCount()) * config.getColumnCount();
 
-            //check size
-            if (window.innerWidth < containerdiv.clientWidth){
-                areawidth = Math.max(window.innerWidth, 320);
-            }
+            config.setWidth(areawidth);
+            config.setHeight(areawidth);
 
             $("#container").css({
-                "width": areawidth,
-                "height": areawidth
+                "width": config.getWidth(),
+                "height": config.getHeight()
             }).show();
 
-            config = new TilesConfig(areawidth, areawidth, containerId);
+            $("#page_content").css({
+                "height": window.innerHeight
+            }).show();
+
             game = new Tiles(config);
             game.createPad();
         } catch (err) {
