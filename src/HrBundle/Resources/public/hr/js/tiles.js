@@ -1,10 +1,11 @@
 /**
- * Created by heike on 20/02/15.
+ * Tiles implementation by HR
+ *
+ * Created by HR on 20/02/15.
+ *
+ * For now: all rights reserved.
  */
-
 //TODO: nicely sliding tiles ;), means: use draggable elements
-// remove info thingy, not needed, rename messenger to info afterwards
-//check if we need ismobiledevice flag
 
 var game = null;
 var config = null;
@@ -820,38 +821,6 @@ function safeGuardErrorHandler() {
         errHandler = new ErrorHandler();
     }
 }
-
-//function orient() {
-    /*
-    turn left
-    portrait 0
-    landscape 90
-    portrait 180
-    landscape -90
-
-    */
-/*
-    var orientation = window.orientation;
-    alert(orientation);
-    var new_orientation = (orientation) ? 0 : 180 + orientation;
-
-    $("#body").css({
-        "-webkit-transform": "rotate(" + new_orientation + "deg)"
-    }).show();
-}*/
-
-$(window).on("orientationchange", function(){
-   //orient();
-    alert(window.orientation);
-
-    /*
-    if ( 90 == window.orientation ) {
-        $("#body").css({
-            "-webkit-transform": "rotate(-90 deg)"
-        }).show();
-    } */
-});
-
 
 //page load
 $(window).ready(

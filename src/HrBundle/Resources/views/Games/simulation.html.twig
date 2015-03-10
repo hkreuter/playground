@@ -56,8 +56,6 @@
 {% endblock %}
 
 {% block javascripts %}
-    {{ parent() }}
-
     {% javascripts '@jquery_and_ui'
                    '@bundle_hr_js_simulation' %}
         <script src="{{ asset_url }}"></script>

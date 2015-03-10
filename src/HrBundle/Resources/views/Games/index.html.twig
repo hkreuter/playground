@@ -2,9 +2,9 @@
 
 {% block meta %}
     <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta http-equiv="content-language" content="en" />
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta http-equiv="content-language" content="en"/>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
 {% endblock %}
 
 {% block stylesheets %}
@@ -14,62 +14,65 @@
 
 {% block body_header %}
 
-<div id="index_main_top" class="mainindex_top">
-    <div class="ui-grid-a">
-        <div class="ui-block-a">
-            <img align="center" src={{ asset('images/favicon.ico') }} />
-        </div>
-        <div class="ui-block-b">
-            <i>blogaboutwhatever.com's playground</i>
-            {% block header_details %}{% endblock %}
+    <div id="index_main_top" class="mainindex_top">
+        <div class="ui-grid-a">
+            <div class="ui-block-a">
+                <img align="center" src={{ asset('images/favicon.ico') }} />
+            </div>
+            <div class="ui-block-b">
+                <i>blogaboutwhatever.com's playground</i>
+                {% block header_details %}{% endblock %}
+            </div>
         </div>
     </div>
-</div>
 
 {% endblock %}
 
 {% block body_main %}
 
-<div id="body_main" class="mainindex mainpad" >
-    <div class="ui-grid-b">
-        <div class="ui-block-a">
-            <a href="simulation" data-ajax="false" title="Game of Life" ><img align="center" src={{ asset('images/pic_simulation.jpg') }} /></a>
+    <div id="body_main" class="mainindex mainpad">
+        <div class="ui-grid-b">
+            <div class="ui-block-a">
+                <a href="simulation" data-ajax="false" title="Game of Life">
+                    <img align="center" src={{ asset('images/pic_simulation.jpg')}} /></a>
+            </div>
+            <div class="ui-block-b">
+                <a href="solitaire" data-ajax="false" title="Solitaire"><img
+                            src={{ asset('images/pic_solitaire.jpg') }} /></a>
+            </div>
+            <div class="ui-block-c">
+                <a href="tiles" data-ajax="false" title="Tiles"><img src={{ asset('images/pic_tiles.jpg') }} /></a>
+            </div>
         </div>
-        <div class="ui-block-b">
-            <a href="solitaire" data-ajax="false" title="Solitaire" ><img src={{ asset('images/pic_solitaire.jpg') }} /></a>
+        <div class="ui-grid-b">
+            <div class="ui-block-a">
+                &nbsp;
+            </div>
+            <div class="ui-block-b">
+                &nbsp;
+            </div>
+            <div class="ui-block-c">
+                &nbsp;
+            </div>
         </div>
-        <div class="ui-block-c">
-            <a href="tiles" data-ajax="false" title="Tiles"><img src={{ asset('images/pic_tiles.jpg') }} /></a>
+        <div class="ui-grid-b">
+            <div class="ui-block-a">
+                <a href="home" title="Memory is not yet available"><img src={{ asset('images/pic_memory.jpg') }} /></a>
+            </div>
+            <div class="ui-block-b">
+                <a href="home" title="Gems is not yet available"><img src={{ asset('images/pic_gems.jpg') }} /></a>
+            </div>
+            <div class="ui-block-c">
+                &nbsp;
+            </div>
         </div>
     </div>
-    <div class="ui-grid-b">
-        <div class="ui-block-a">
-            &nbsp;
-        </div>
-        <div class="ui-block-b">
-            &nbsp;
-        </div>
-        <div class="ui-block-c">
-            &nbsp;
-        </div>
-    </div>
-    <div class="ui-grid-b">
-        <div class="ui-block-a">
-            <a href="home" title="Memory is not yet available" ><img src={{ asset('images/pic_memory.jpg') }} /></a>
-        </div>
-        <div class="ui-block-b">
-            <a href="home" title="Gems is not yet available"><img src={{ asset('images/pic_gems.jpg') }} /></a>
-        </div>
-        <div class="ui-block-c">
-            &nbsp;
-        </div>
-    </div>
-</div>
 
 {% endblock %}
 
 {% block javascripts %}
-    {% javascripts '@jquery_and_ui' %}
-        <script src="{{ asset_url }}"></script>
+    {% javascripts '@jquery_and_ui'
+    '@bundle_hr_js_home' %}
+    <script src="{{ asset_url }}"></script>
     {% endjavascripts %}
 {% endblock %}

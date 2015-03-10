@@ -6,9 +6,9 @@
 #    path:      /
 #    defaults:  { _controller: HrBundle:Default:index }
 
-_games:
-    path:      /games/{page}
-    defaults:  { _controller: HrBundle:Games:index, page: index }
+#_games:
+#    path:      /games/{page}
+#    defaults:  { _controller: HrBundle:Games:index, page: index }
 
 _dices:
     path:      /dices/{page}

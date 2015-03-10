@@ -79,6 +79,11 @@ assetic:
                 - '@HrBundle/Resources/public/hr/js/base.js'
                 - '@HrBundle/Resources/public/hr/js/tiles.js'
             output: js/hrbundle_tiles.js
+        bundle_hr_js_home:
+            inputs:
+                - '@HrBundle/Resources/public/hr/js/base.js'
+                - '@HrBundle/Resources/public/hr/js/home.js'
+            output: js/hrbundle_home.js
         bundle_hr_js_tests:
             inputs:
                 - '@HrBundle/Resources/public/hr/js/tests/simulation.js'

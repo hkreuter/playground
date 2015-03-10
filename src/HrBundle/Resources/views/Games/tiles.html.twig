@@ -49,8 +49,6 @@
 {% endblock %}
 
 {% block javascripts %}
-    {{ parent() }}
-
     {% javascripts '@jquery_and_ui'
     '@bundle_hr_js_tiles' %}
     <script src="{{ asset_url }}"></script>
