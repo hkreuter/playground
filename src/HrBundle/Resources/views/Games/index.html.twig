@@ -15,10 +15,14 @@
 {% block body_header %}
 
 <div id="index_main_top" class="mainindex_top">
-    <div class="ui-grid-b">
-        <div class="ui-block-a"><img align="center" src={{ asset('images/favicon.ico') }} /></div>
-        <div class="ui-block-b"><i>blogaboutwhatever.com's playground</i></div>
-        <div class="ui-block-c">{% block header_details %}{% endblock %}</div>
+    <div class="ui-grid-a">
+        <div class="ui-block-a">
+            <img align="center" src={{ asset('images/favicon.ico') }} />
+        </div>
+        <div class="ui-block-b">
+            <i>blogaboutwhatever.com's playground</i>
+            {% block header_details %}{% endblock %}
+        </div>
     </div>
 </div>
 

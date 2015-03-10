@@ -232,11 +232,6 @@ function Solitaire(config) {
             var mousex = eventsource.clientX;
             var mousey = eventsource.clientY;
 
-            if ('touchstart' == eventType) {
-                //use this for a touchscreen
-                mousex = eventsource.touches[0].clientX;
-                mousey = eventsource.touches[0].clientY;
-            }
             var boundingRect = document.getElementById(config.getCanvasId()).getBoundingClientRect();
             var offsetHeight = Math.ceil(boundingRect.top - config.getTopOffset());
             var offsetWidth = Math.ceil(boundingRect.left - config.getLeftOffset());
@@ -648,7 +643,7 @@ function safeGuardErrorHandler() {
 }
 
 //attach events
-$("#container").bind("click ontouchstart", function (event) {
+$("#container").on("click", function (event) {
     try {
         game.selectBall(event);
         game.checkGame();
@@ -658,7 +653,7 @@ $("#container").bind("click ontouchstart", function (event) {
     }
 });
 
-$("#reset").bind("click ontouchstart", function (event) {
+$("#reset").on("click", function (event) {
     try {
         game.reset();
     } catch (err) {
@@ -667,7 +662,7 @@ $("#reset").bind("click ontouchstart", function (event) {
     }
 });
 
-$("#home").bind("click ontouchstart", function (event) {
+$("#home").on("click", function (event) {
     try {
         window.location.href = "home";
     } catch (err) {

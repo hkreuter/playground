@@ -408,13 +408,19 @@ function Tiles(config) {
             case 'touchmove':
                 // prevent scrolling
                 eventsource.preventDefault();
+
                 // keep track of position
                 this.oMove = new Pos();
-                this.oMove.setxPos(eventsource.targetTouches[0].clientX);
-                this.oMove.setYPos(eventsource.targetTouches[0].clientY);
+                this.oMove.setXpos(eventsource.targetTouches[0].clientX);
+                this.oMove.setYpos(eventsource.targetTouches[0].clientY);
                 break;
 
             case 'touchend':
+
+                //easier way in case we only need the point of touchend:
+                //use eventsource.changedTouches[0].clientX and eventsource.changedTouches[0].clientY
+                // same as what we get for this.oMove.getXpos()and this.oMove.getYpos()
+
                 //if we have an end position end the move, if not cancel the move
                 if (null != this.oMove) {
                     this.core.endMove(this.oMove.getXpos() - offsetWidth - config.getLeftOffset(),
@@ -426,6 +432,7 @@ function Tiles(config) {
                 break;
 
             default:
+                eventsource.preventDefault();
                 break;
         }
 
@@ -814,10 +821,44 @@ function safeGuardErrorHandler() {
     }
 }
 
+//function orient() {
+    /*
+    turn left
+    portrait 0
+    landscape 90
+    portrait 180
+    landscape -90
+
+    */
+/*
+    var orientation = window.orientation;
+    alert(orientation);
+    var new_orientation = (orientation) ? 0 : 180 + orientation;
+
+    $("#body").css({
+        "-webkit-transform": "rotate(" + new_orientation + "deg)"
+    }).show();
+}*/
+
+$(window).on("orientationchange", function(){
+   //orient();
+    alert(window.orientation);
+
+    /*
+    if ( 90 == window.orientation ) {
+        $("#body").css({
+            "-webkit-transform": "rotate(-90 deg)"
+        }).show();
+    } */
+});
+
+
 //page load
 $(window).ready(
     function () {
         try {
+            //orient();
+
             config = new TilesConfig('container');
             var areawidth = Math.min(window.innerWidth, config.getMaxWidth());
             areawidth = Math.max(areawidth, config.getMinWidth());
@@ -845,10 +886,10 @@ $(window).ready(
 );
 
 //attach events
-$("#container").bind("mousedown mouseup touchstart touchmove touchend", function (event) {
+$("#container").on("mousedown mouseup touchstart touchmove touchend", function (event) {
     try {
         if (true != game.isShufflingNow()) {
-            game.handleMove(event);
+            game.handleMove(event.originalEvent);
         }
     } catch (err) {
         safeGuardErrorHandler();
@@ -856,7 +897,7 @@ $("#container").bind("mousedown mouseup touchstart touchmove touchend", function
     }
 });
 
-$("#shuffle").bind("click ontouchstart", function (event) {
+$("#shuffle").on("click touchstart", function (event) {
     try {
         if (( true != game.isShufflingNow() )
             && ('running' != game.getStatus() )
@@ -869,7 +910,7 @@ $("#shuffle").bind("click ontouchstart", function (event) {
     }
 });
 
-$("#reset").bind("click ontouchstart", function (event) {
+$("#reset").on("click touchstart", function (event) {
     try {
         if (true != game.isShufflingNow()) {
             stopTimer(true);
@@ -883,7 +924,7 @@ $("#reset").bind("click ontouchstart", function (event) {
     }
 });
 
-$("#home").bind("click ontouchstart", function (event) {
+$("#home").on("click touchstart", function (event) {
     try {
         window.location.href = "home";
     } catch (err) {

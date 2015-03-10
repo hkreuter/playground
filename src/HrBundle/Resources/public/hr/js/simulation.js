@@ -628,7 +628,7 @@ $(window).ready(
     }
 );
 
-$("#container").bind("click ontouchstart", function (event) {
+$("#container").on("click ontouchstart", function (event) {
     try {
         game.setCell(event);
     } catch (err) {
@@ -637,7 +637,7 @@ $("#container").bind("click ontouchstart", function (event) {
     }
 });
 
-$("#start").bind("click ontouchstart", function (event) {
+$("#start").on("click ontouchstart", function (event) {
     try {
         game.simulationStart();
     } catch (err) {
@@ -646,7 +646,7 @@ $("#start").bind("click ontouchstart", function (event) {
     }
 });
 
-$("#stop").bind("click ontouchstart", function (event) {
+$("#stop").on("click ontouchstart", function (event) {
     try {
         game.simulationStop();
     } catch (err) {
@@ -655,7 +655,7 @@ $("#stop").bind("click ontouchstart", function (event) {
     }
 });
 
-$("#reset").bind("click ontouchstart", function (event) {
+$("#reset").on("click ontouchstart", function (event) {
     try {
         game.simulationReset();
     } catch (err) {
@@ -664,7 +664,7 @@ $("#reset").bind("click ontouchstart", function (event) {
     }
 });
 
-$("#clean").bind("click ontouchstart", function (event) {
+$("#clean").on("click ontouchstart", function (event) {
     try {
         game.simulationClean(true);
     } catch (err) {
@@ -673,7 +673,7 @@ $("#clean").bind("click ontouchstart", function (event) {
     }
 });
 
-$("#mode").bind("click ontouchstart", function (event) {
+$("#mode").on("click ontouchstart", function (event) {
     try {
         if (('ready' == game.getStatus())
             || ('reset' == game.getStatus())
@@ -687,7 +687,7 @@ $("#mode").bind("click ontouchstart", function (event) {
     }
 });
 
-$("#info").bind("click ontouchstart", function (event) {
+$("#info").on("click ontouchstart", function (event) {
     try {
         game.showStatistics();
     } catch (err) {
@@ -696,7 +696,7 @@ $("#info").bind("click ontouchstart", function (event) {
     }
 });
 
-$("#home").bind("click ontouchstart", function (event) {
+$("#home").on("click ontouchstart", function (event) {
     try {
         window.location.href = "home";
     } catch (err) {
