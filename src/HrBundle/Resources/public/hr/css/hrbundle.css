@@ -15,7 +15,7 @@
 /* siminfo styles */
 .siminfo{text-align: center; top:0;left:0;font-size: 11px}
 .siminfo > table{text-align: left; margin: 0; padding: 0;}
-.siminfo.moreinfo {font-size:9px; color: #FFFFFF; text-align: bottom;}
+.siminfo.moreinfo {font-size:9px; color: #FFFFFF; text-align: center;}
 
 .mysize{max-width: 600px; margin: 0 auto; background: rgba(114, 170, 172, 0.58); }
 .simsize{ width: 403px; height: 403px; margin: 0 auto; }

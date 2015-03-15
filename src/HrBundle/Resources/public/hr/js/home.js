@@ -15,34 +15,13 @@ function safeGuardErrorHandler() {
     }
 }
 
-/*
-
- navigator.userAgent.match(/iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile/i);
-
-
-
- */
-
 //page load
 $(window).ready(
     function () {
         try {
-
-            alert(navigator.userAgent.match(/iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile/i));
-
-            if ( navigator.userAgent.match(/iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile/i) ){
-                $("#page_content").css({
-                    "height": window.innerHeight,
-                    "width": window.innerWidth
-                }).show();
-            } else {
-                $("#page_content").css({
-                    "height": window.innerHeight
-                }).show();
-            }
-
             orient();
-
+            adapt();
+            window.scrollTo(0,0);
         } catch (err) {
             safeGuardErrorHandler();
             errHandler.consoleLog(err);
@@ -50,42 +29,58 @@ $(window).ready(
     }
 );
 
-function orient() {
+// adapt page size
+function adapt() {
+    if ( navigator.userAgent.match(/iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile/i) ){
 
-    /*
-    $("#body").css({
-        "-webkit-transform": "rotate(" + new_orientation + "deg)"
-    }).show();
-    */
+        if (90 == Math.abs(window.orientation)) {
+            $("#page_content").css({
+                "height": window.innerWidth,
+                "width": window.innerHeight
+            }).show();
+        } else {
+            $("#page_content").css({
+                "height": window.innerHeight,
+                "width": window.innerWidth
+            }).show();
+        }
+    } else {
+        $("#page_content").css({
+            "height": window.innerHeight
+        }).show();
+    }
 }
 
-//function orient() {
-/*
- turn left
- portrait 0
- landscape 90
- portrait 180
- landscape -90
+//handle orientation changes
+function orient() {
 
- */
-/*
- var orientation = window.orientation;
- alert(orientation);
- var new_orientation = (orientation) ? 0 : 180 + orientation;
+    if (isNaN(window.orientation)) {
+        return;
+    }
 
- $("#body").css({
- "-webkit-transform": "rotate(" + new_orientation + "deg)"
- }).show();
- }*/
+    var orient = (0 == window.orientation) ? 0 : 180 + window.orientation;
+    var xtrans = 0;
+    var ytrans = 0;
+
+    if (-90 == window.orientation) {
+        ytrans = 0;
+        xtrans = $("#page_content").height();
+    }
+
+    if (90 == window.orientation) {
+        ytrans = $("#page_content").width();
+        xtrans = 0;
+    }
+
+    $("#page_content").css({
+        "-moz-transformOrigin": "0px 0px",
+        "-webkit-transformOrigin": "0px 0px",
+        "-moz-transform": "translate(" + xtrans + "px, " + ytrans + "px) rotate(" + orient + "deg)",
+        "-webkit-transform": "translate(" + xtrans + "px, " + ytrans + "px) rotate(" + orient + "deg)"
+    }).show();
+}
 
 $(window).on("orientationchange", function(){
-    //orient();
-    alert(window.orientation);
-
-    /*
-     if ( 90 == window.orientation ) {
-     $("#body").css({
-     "-webkit-transform": "rotate(-90 deg)"
-     }).show();
-     } */
+    orient();
+    window.scrollTo(0,0);
 });
