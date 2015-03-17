@@ -34,16 +34,10 @@ function adapt() {
     if ( navigator.userAgent.match(/iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile/i) ){
 
         if (90 == Math.abs(window.orientation)) {
-      //  if (90 == window.orientation) {
             $("#page_content").css({
                 "height": window.innerWidth,
                 "width": window.innerHeight
             }).show();
-      /*  } else if (-90 == window.orientation) {
-                $("#page_content").css({
-                    "width": window.outerHeight,
-                    "height": window.innerWidth
-                }).show(); */
         } else {
             $("#page_content").css({
                 "height": window.innerHeight,
@@ -71,46 +65,21 @@ function orient() {
     var originy = 0;
 
     if (-90 == window.orientation) {
-        originx = 0;
-        originy = 0;
         ytrans = 0;
         xtrans = window.innerWidth;
-        $("#page_content").css({
-            "-moz-transformOrigin": originx + "px " + originy + "px",
-            "-webkit-transformOrigin": originx + "px " + originy + "px",
-            "-moz-transform": "translate(" + xtrans + "px, " + ytrans + "px) rotate(" + orient + "deg)",
-            "-webkit-transform": "translate(" + xtrans + "px, " + ytrans + "px) rotate(" + orient + "deg)"
-        }).show();
     }
 
     if (90 == window.orientation) {
         ytrans = $("#page_content").width();
         xtrans = 0;
-        $("#page_content").css({
-            "-moz-transformOrigin": originx + "px " + originy + "px",
-            "-webkit-transformOrigin": originx + "px " + originy + "px",
-            "-moz-transform": "translate(" + xtrans + "px, " + ytrans + "px) rotate(" + orient + "deg)",
-            "-webkit-transform": "translate(" + xtrans + "px, " + ytrans + "px) rotate(" + orient + "deg)"
-        }).show();
     }
 
-    if (0 == window.orientation) {
-        $("#page_content").css({
-            "-moz-transformOrigin": originx + "px " + originy + "px",
-            "-webkit-transformOrigin": originx + "px " + originy + "px",
-            "-moz-transform": "translate(" + xtrans + "px, " + ytrans + "px) rotate(" + orient + "deg)",
-            "-webkit-transform": "translate(" + xtrans + "px, " + ytrans + "px) rotate(" + orient + "deg)"
-        }).show();
-    }
-
-    /*
     $("#page_content").css({
         "-moz-transformOrigin": originx + "px " + originy + "px",
         "-webkit-transformOrigin": originx + "px " + originy + "px",
         "-moz-transform": "translate(" + xtrans + "px, " + ytrans + "px) rotate(" + orient + "deg)",
         "-webkit-transform": "translate(" + xtrans + "px, " + ytrans + "px) rotate(" + orient + "deg)"
     }).show();
-    */
 }
 
 $(window).on("orientationchange", function(){
