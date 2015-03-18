@@ -622,9 +622,9 @@ $(window).ready(
                 "height": config.getHeight()
             }).show();
 
-            $("#page_content").css({
-                "height": window.innerHeight
-            }).show();
+            orient();
+            adapt();
+            window.scrollTo(0,0);
 
             game = new Solitaire(config);
             game.createPad();
@@ -634,6 +634,12 @@ $(window).ready(
         }
     }
 );
+
+$(window).on("orientationchange", function(){
+    orient();
+    adapt();
+    window.scrollTo(0,0);
+});
 
 //error handler safeguard
 function safeGuardErrorHandler() {
