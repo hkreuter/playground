@@ -364,29 +364,32 @@ function Tiles(config) {
         var offsetHeight = Math.ceil(boundingRect.top - config.getTopOffset());
         var offsetWidth  = Math.ceil(boundingRect.left - config.getLeftOffset());
 
-        var mousex = eventsource.clientX;
-        var mousey = eventsource.clientY;
+        var rawX = eventsource.clientX;
+        var rawY = eventsource.clientY;
+        var theOrienter = null;
 
         switch (eventType) {
 
             case 'mousedown':
                 this.startPos = new Pos();
-                this.startPos.setXpos(mousex);
-                this.startPos.setYpos(mousey);
-                this.core.startMove(mousex - offsetWidth - config.getLeftOffset(),
-                                    mousey - offsetHeight - config.getTopOffset());
+                this.startPos.setXpos(rawX);
+                this.startPos.setYpos(rawY);
+                theOrienter = new doOrient(rawX - offsetWidth - config.getLeftOffset(),
+                    rawY - offsetHeight - config.getTopOffset());
+                this.core.startMove(theOrienter.getXpos(), theOrienter.getYpos());
                 break;
 
             case 'mouseup':
                 this.endPos = new Pos();
-                this.endPos.setXpos(mousex);
-                this.endPos.setYpos(mousey);
+                this.endPos.setXpos(rawX);
+                this.endPos.setYpos(rawY);
 
                 if ((this.startPos.getXpos() != this.endPos.getXpos())
                     || (this.startPos.getYpos() != this.endPos.getYpos())
                 ) {
-                    this.core.endMove(mousex - offsetWidth - config.getLeftOffset(),
-                                      mousey - offsetHeight - config.getTopOffset());
+                    theOrienter = new doOrient(rawX - offsetWidth - config.getLeftOffset(),
+                                      rawY - offsetHeight - config.getTopOffset());
+                    this.core.endMove(theOrienter.getXpos(), theOrienter.getYpos());
                 } else {
                     this.core.cancelMove();
                 }
@@ -400,10 +403,11 @@ function Tiles(config) {
                 eventsource.preventDefault();
 
                 //use this for the touchscreen, we are only interested in the first finger touching the screen
-                mousex = eventsource.touches[0].clientX;
-                mousey = eventsource.touches[0].clientY;
-                this.core.startMove(mousex - offsetWidth - config.getLeftOffset(),
-                                    mousey - offsetHeight - config.getTopOffset());
+                rawX = eventsource.touches[0].clientX;
+                rawY = eventsource.touches[0].clientY;
+                theOrienter = new doOrient(rawX - offsetWidth - config.getLeftOffset(),
+                    rawY - offsetHeight - config.getTopOffset());
+                this.core.startMove(theOrienter.getXpos(), theOrienter.getYpos());
                 break;
 
             case 'touchmove':
@@ -424,8 +428,9 @@ function Tiles(config) {
 
                 //if we have an end position end the move, if not cancel the move
                 if (null != this.oMove) {
-                    this.core.endMove(this.oMove.getXpos() - offsetWidth - config.getLeftOffset(),
-                                      this.oMove.getYpos() - offsetHeight - config.getTopOffset());
+                    theOrienter = new doOrient(this.oMove.getXpos() - offsetWidth - config.getLeftOffset(),
+                        this.oMove.getYpos() - offsetHeight - config.getTopOffset());
+                    this.core.endMove(theOrienter.getXpos(), theOrienter.getYpos());
                 } else {
                     this.core.cancelMove();
                 }
@@ -456,6 +461,25 @@ function Tiles(config) {
         game = this;
         messenger = setTimeout(doInfo, 100, messages, 0);
     };
+}
+
+function doOrient( varX, varY) {
+
+    var corX = varX;
+    var corY = varY;
+
+    if (90 == window.orientation) {
+        tmp  = corX;
+        corX = (config.getWidth() - corY);
+        corY = tmp;
+    } else if (-90 == window.orientation) {
+        tmp  = corY;
+        corY = (config.getHeight() - corX);
+        corX = tmp;
+    }
+
+    var ret = new Pos(corX, corY);
+    return ret;
 }
 
 //rotate messages on info canvas
@@ -778,6 +802,8 @@ function TilesCore(config, canvasses) {
             this.countOfMoves++;
             this.selectedTile = null;
             this.gameOver = this.checkTilesPositions();
+        } else {
+            this.cancelMove();
         }
         this.clearEffects('effects');
     };
