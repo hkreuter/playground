@@ -294,19 +294,34 @@ function GameOfLife(config) {
             || ('cleaned' == status)
             || ('stopped' == status)
         ) {
-            var mousex = eventsource.clientX;
-            var mousey = eventsource.clientY;
+            var rawX = eventsource.clientX;
+            var rawY = eventsource.clientY;
 
             if ('touchstart' == eventType) {
                 //use this for ipod touchscreen
-                mousex = eventsource.touches[0].clientX;
-                mousey = eventsource.touches[0].clientY;
+                rawX = eventsource.touches[0].clientX;
+                rawY = eventsource.touches[0].clientY;
             }
 
             var boundingRect = document.getElementById(config.getCanvasId()).getBoundingClientRect();
             var offsetHeight = Math.ceil(boundingRect.top - config.getTopOffset());
             var offsetLeft = Math.ceil(boundingRect.left);
-            this.core.setCell(mousex - offsetLeft, mousey - offsetHeight);
+            var corX = rawX - offsetLeft;
+            var corY = rawY - offsetHeight;
+            var tmp  = corX;
+
+            //correct for page orientation
+            if (90 == window.orientation) {
+                tmp  = corX;
+                corX = (config.getWidth() - corY);
+                corY = tmp;
+            } else if (-90 == window.orientation) {
+                tmp  = corY;
+                corY = (config.getHeight() - corX);
+                corX = tmp;
+            }
+
+            this.core.setCell(corX, corY);
             this.core.draw(this.canvas);
         }
     };

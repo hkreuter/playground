@@ -229,14 +229,28 @@ function Solitaire(config) {
             || ('running' == this.getStatus() )
         ) {
 
-            var mousex = eventsource.clientX;
-            var mousey = eventsource.clientY;
+            var rawX = eventsource.clientX;
+            var rawY = eventsource.clientY;
 
             var boundingRect = document.getElementById(config.getCanvasId()).getBoundingClientRect();
             var offsetHeight = Math.ceil(boundingRect.top - config.getTopOffset());
-            var offsetWidth = Math.ceil(boundingRect.left - config.getLeftOffset());
+            var offsetWidth  = Math.ceil(boundingRect.left - config.getLeftOffset());
+            var corX = rawX - offsetWidth;
+            var corY = rawY - offsetHeight;
+            var tmp  = corX;
 
-            this.core.selectBall(mousex - offsetWidth, mousey - offsetHeight);
+            //correct for page orientation
+            if (90 == window.orientation) {
+                tmp  = corX;
+                corX = (config.getWidth() - corY);
+                corY = tmp;
+            } else if (-90 == window.orientation) {
+                tmp  = corY;
+                corY = (config.getHeight() - corX);
+                corX = tmp;
+            }
+
+            this.core.selectBall(corX, corY);
         }
     };
 
